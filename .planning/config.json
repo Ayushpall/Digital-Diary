@@ -1,0 +1,8 @@
+{
+  "workflow": {
+    "discuss_mode": "discuss",
+    "research_depth": "standard",
+    "plan_granularity": "standard"
+  },
+  "runtime": "antigravity"
+}
