@@ -49,7 +49,7 @@ export function CalendarEntry({
               This page in your journal is currently blank. Pen your memories or reflections for this date anytime.
             </p>
             <Link
-              href="/editor/demo"
+              href={`/editor/demo?new=true&date=${selectedDateStr}`}
               className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[42px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs transition-all active:scale-95 diary-focus"
             >
               <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />
@@ -126,7 +126,7 @@ export function CalendarEntry({
             <span>Open in Book</span>
           </Link>
           <Link
-            href="/editor/demo"
+            href={`/editor/demo?id=${entry.id}`}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[38px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] transition-all shadow-xs diary-focus active:scale-95"
           >
             <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />

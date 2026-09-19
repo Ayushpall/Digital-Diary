@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { SearchTimeframe } from "@/types/search";
+import { useAuth } from "@clerk/nextjs";
+import { SearchTimeframe, SearchableDiaryEntry } from "@/types/search";
 import { SearchBar } from "@/components/search/SearchBar";
 import { SearchResults } from "@/components/search/SearchResults";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -17,15 +18,73 @@ import {
 } from "lucide-react";
 
 export default function SearchPage() {
-  // Pre-seed query with "startup" to immediately showcase the user's requested example
-  const [query, setQuery] = useState("startup");
+  const { isSignedIn, isLoaded } = useAuth();
+  const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<SearchTimeframe>("all");
+  const [entries, setEntries] = useState<SearchableDiaryEntry[]>([]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (!isSignedIn) {
+      // For guest demo mode, show mock entries and seed query
+      setEntries(mockSearchEntries);
+      setQuery("startup");
+      return;
+    }
+
+    // Authenticated user: fetch actual entries from API
+    fetch("/api/entries")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.entries && data.entries.length > 0) {
+          const now = new Date();
+          const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+          const mapped: SearchableDiaryEntry[] = data.entries.map((e: any) => {
+            const d = new Date(e.date);
+            let timeframe: "week" | "month" | "older" = "older";
+            if (d >= oneWeekAgo) {
+              timeframe = "week";
+            } else if (d >= oneMonthAgo) {
+              timeframe = "month";
+            }
+
+            // Extract tags or fallback
+            const tags: string[] = ["journal", e.mood || "thought"];
+
+            return {
+              id: e.id,
+              date: d.toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }),
+              dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
+              title: e.title,
+              content: e.content,
+              tags,
+              mood: e.mood || "Reflective",
+              moodEmoji: e.mood === "happy" ? "😊" : "✨",
+              diaryName: e.diaryTitle || "My Journal",
+              timeframe,
+            };
+          });
+          setEntries(mapped);
+        } else {
+          // Fresh user: clean empty state
+          setEntries([]);
+        }
+      })
+      .catch((err) => console.error("Error fetching search entries:", err));
+  }, [isSignedIn, isLoaded]);
 
   // Filter entries based on query (title, content, date, tags, mood) and timeframe
   const filteredEntries = useMemo(() => {
     const q = query.toLowerCase().trim();
 
-    return mockSearchEntries.filter((entry) => {
+    return entries.filter((entry) => {
       // 1. Timeframe filter check
       if (activeFilter !== "all" && entry.timeframe !== activeFilter) {
         return false;
@@ -55,7 +114,7 @@ export default function SearchPage() {
 
       return false;
     });
-  }, [query, activeFilter]);
+  }, [entries, query, activeFilter]);
 
   return (
     <div className="min-h-screen bg-[#F8F4EC] text-[#2C2621] flex flex-col justify-between">

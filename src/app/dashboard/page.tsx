@@ -105,6 +105,83 @@ export default function DashboardPage() {
 
           {/* Section 4: Diary Statistics */}
           <DiaryStats stats={stats} />
+
+          {/* Section 5: Journal Settings & Personal Profile */}
+          <section id="settings-section" className="mt-12 mb-16 pt-8 border-t border-[#DECDB8]">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-serif text-xl sm:text-2xl text-[#261A13] font-normal">
+                  Settings & Preferences
+                </h2>
+                <p className="text-xs text-[#7A6756] font-light">
+                  Manage your personal writing desk, default typography, and private workspace
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Card 1: Writing Environment */}
+              <div className="p-6 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
+                <h3 className="font-serif text-lg text-[#261A13] font-medium mb-1">
+                  Writing Atmosphere
+                </h3>
+                <p className="text-xs text-[#736253] font-light mb-4">
+                  Default ink colors, paper rulings, and sensory features.
+                </p>
+
+                <div className="space-y-3.5 text-xs text-[#4A392B]">
+                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
+                    <span className="font-medium">Paper Texture Pattern</span>
+                    <span className="font-mono text-[#7B6959]">Vintage Ruled Lines</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
+                    <span className="font-medium">Handwriting Fluidity</span>
+                    <span className="font-mono text-[#7B6959]">Living Ink Enabled</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
+                    <span className="font-medium">Auto-Save Frequency</span>
+                    <span className="font-mono text-[#4A7352] font-semibold">Continuous (1.2s debounce)</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="font-medium">Physical Page Flip Sound</span>
+                    <span className="font-mono text-[#7B6959]">Subtle Velvet</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Privacy & Account Isolation */}
+              <div className="p-6 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
+                <h3 className="font-serif text-lg text-[#261A13] font-medium mb-1">
+                  Private Cloud Vault
+                </h3>
+                <p className="text-xs text-[#736253] font-light mb-4">
+                  Multi-tenant isolation backed by Neon PostgreSQL.
+                </p>
+
+                <div className="space-y-3.5 text-xs text-[#4A392B]">
+                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
+                    <span className="font-medium">Database Isolation</span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E5EFE2] text-[#345938] font-mono text-[11px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4A7352]" />
+                      Tenant Encrypted
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
+                    <span className="font-medium">Active Volumes</span>
+                    <span className="font-mono text-[#7B6959]">{diaries.length} Bound</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
+                    <span className="font-medium">Total Entries Stored</span>
+                    <span className="font-mono text-[#7B6959]">{stats.totalEntries} Saved</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="font-medium">Storage Region</span>
+                    <span className="font-mono text-[#7B6959]">Neon Serverless PG</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 

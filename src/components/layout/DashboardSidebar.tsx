@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { 
   BookOpen, 
   Calendar as CalendarIcon, 
@@ -29,7 +30,33 @@ export function DashboardSidebar({
   mobileOpen = false,
   onMobileClose,
 }: DashboardSidebarProps) {
+  const { user, isSignedIn, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [themeDark, setThemeDark] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("digital_diary_theme");
+      if (saved === "warm-ink") {
+        setThemeDark(true);
+        document.documentElement.classList.add("theme-warm-ink");
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextState = !themeDark;
+    setThemeDark(nextState);
+    if (typeof window !== "undefined") {
+      if (nextState) {
+        document.documentElement.classList.add("theme-warm-ink");
+        localStorage.setItem("digital_diary_theme", "warm-ink");
+      } else {
+        document.documentElement.classList.remove("theme-warm-ink");
+        localStorage.setItem("digital_diary_theme", "parchment");
+      }
+    }
+  };
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
@@ -123,30 +150,63 @@ export function DashboardSidebar({
         </div>
 
         {/* User Profile Card */}
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
-          <div className="flex items-center gap-2.5">
-            {/* Monogram Avatar */}
-            <div className="w-9 h-9 rounded-full bg-[#3B291D] text-[#E8C888] font-serif font-medium text-sm flex items-center justify-center border border-[#523B2A] shadow-inner">
-              EV
+        {isSignedIn && user ? (
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              {user.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={user.fullName || "User profile"}
+                  className="w-9 h-9 rounded-full object-cover border border-[#523B2A] shadow-inner"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-[#3B291D] text-[#E8C888] font-serif font-medium text-sm flex items-center justify-center border border-[#523B2A] shadow-inner flex-shrink-0">
+                  {(user.firstName?.[0] || user.username?.[0] || "U").toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-serif font-medium text-[#291D15] leading-tight truncate">
+                  {user.fullName || user.username || "Private Journaler"}
+                </p>
+                <p className="text-[10px] text-[#8C7A6B] font-mono leading-tight truncate">
+                  {user.primaryEmailAddress?.emailAddress || "Signed in"}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-serif font-medium text-[#291D15] leading-tight">
-                Eleanor Vance
-              </p>
-              <p className="text-[10px] text-[#8C7A6B] font-mono leading-tight">
-                Quiet Journaler
-              </p>
-            </div>
+            <button
+              onClick={() => signOut({ redirectUrl: "/" })}
+              title="Sign Out"
+              aria-label="Sign Out"
+              className="p-1.5 text-[#887564] hover:text-[#3B291D] hover:bg-[#EBE0CF] rounded-lg transition-colors diary-focus active:scale-95 flex-shrink-0"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-          <Link
-            href="/"
-            title="Return to Landing"
-            aria-label="Return to Landing page"
-            className="p-1.5 text-[#887564] hover:text-[#3B291D] hover:bg-[#EBE0CF] rounded-lg transition-colors diary-focus active:scale-95"
-          >
-            <LogOut className="w-4 h-4" />
-          </Link>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-[#3B291D] text-[#E8C888] font-serif font-medium text-sm flex items-center justify-center border border-[#523B2A] shadow-inner">
+                G
+              </div>
+              <div>
+                <p className="text-xs font-serif font-medium text-[#291D15] leading-tight">
+                  Guest Explorer
+                </p>
+                <p className="text-[10px] text-[#8C7A6B] font-mono leading-tight">
+                  Preview Mode
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/sign-in"
+              title="Sign In"
+              aria-label="Sign In"
+              className="px-2 py-1 text-xs font-serif bg-[#38261A] text-[#FAF5ED] hover:bg-[#483324] rounded-lg transition-colors"
+            >
+              Sign In
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

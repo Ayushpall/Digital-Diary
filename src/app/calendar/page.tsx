@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { CalendarEntry } from "@/components/calendar/CalendarEntry";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { mockCalendarEntries } from "@/lib/calendar-data";
+import { CalendarEntryData } from "@/types/calendar";
 import { 
   ArrowLeft, 
   BookOpen, 
@@ -16,9 +18,70 @@ import {
 } from "lucide-react";
 
 export default function CalendarPage() {
-  // Initial date set to September 2026 (or today)
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 18));
-  const [selectedDateKey, setSelectedDateKey] = useState<string>("2026-09-18");
+  const { isSignedIn, isLoaded } = useAuth();
+  
+  // Format today's date key YYYY-MM-DD
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+  const [currentDate, setCurrentDate] = useState<Date>(now);
+  const [selectedDateKey, setSelectedDateKey] = useState<string>(todayKey);
+  const [calendarEntries, setCalendarEntries] = useState<Record<string, CalendarEntryData>>({});
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (!isSignedIn) {
+      // Unauthenticated demo visitors can explore mock calendar entries
+      setCalendarEntries(mockCalendarEntries);
+      setSelectedDateKey("2026-09-18");
+      setCurrentDate(new Date(2026, 8, 18));
+      return;
+    }
+
+    // Authenticated user: fetch actual entries from database
+    fetch("/api/entries")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.entries && data.entries.length > 0) {
+          const map: Record<string, CalendarEntryData> = {};
+          data.entries.forEach((e: any) => {
+            const d = new Date(e.date);
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+            map[dateKey] = {
+              id: e.id,
+              dateKey,
+              dateFormatted: d.toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }),
+              dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
+              title: e.title,
+              content: e.content,
+              moodEmoji: e.mood ? "✨" : "☕",
+              moodLabel: e.mood || "Reflective",
+              inkColor: "midnight",
+              diaryName: e.diaryTitle || "My Journal",
+              wordCount: e.content ? e.content.trim().split(/\s+/).length : 0,
+            };
+          });
+          setCalendarEntries(map);
+
+          // If current selected date has no entry but there's a recent entry, select that date
+          const firstKey = Object.keys(map)[0];
+          if (firstKey) {
+            setSelectedDateKey(firstKey);
+            const [y, m] = firstKey.split("-");
+            setCurrentDate(new Date(parseInt(y), parseInt(m) - 1, 1));
+          }
+        } else {
+          // Fresh user with 0 entries
+          setCalendarEntries({});
+        }
+      })
+      .catch((err) => console.error("Error fetching calendar entries:", err));
+  }, [isSignedIn, isLoaded]);
 
   // Format the selected date for display
   const getFormattedSelectedDate = (dateKey: string) => {
@@ -43,21 +106,20 @@ export default function CalendarPage() {
   };
 
   const handleGoToday = () => {
-    // Return to September 2026 context or current system date
-    const target = new Date(2026, 8, 18);
-    setCurrentDate(target);
-    setSelectedDateKey("2026-09-18");
+    const today = new Date();
+    const key = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    setCurrentDate(today);
+    setSelectedDateKey(key);
   };
 
   const handleSelectDate = (dateKey: string, dateObj: Date) => {
     setSelectedDateKey(dateKey);
-    // If user clicked a day in another month, adjust view
     if (dateObj.getMonth() !== currentDate.getMonth()) {
       setCurrentDate(dateObj);
     }
   };
 
-  const selectedEntry = mockCalendarEntries[selectedDateKey] || null;
+  const selectedEntry = calendarEntries[selectedDateKey] || null;
 
   return (
     <div className="min-h-screen bg-[#F8F4EC] text-[#2C2621] flex flex-col justify-between">
@@ -120,7 +182,7 @@ export default function CalendarPage() {
               onPrevMonth={handlePrevMonth}
               onNextMonth={handleNextMonth}
               onGoToday={handleGoToday}
-              entriesMap={mockCalendarEntries}
+              entriesMap={calendarEntries}
             />
           </div>
 
