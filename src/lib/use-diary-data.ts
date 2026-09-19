@@ -11,16 +11,22 @@ import { DiaryCardData, RecentEntryData, DiaryStatsData } from "@/types/dashboar
 
 export function useDiaryData() {
   const { isSignedIn, isLoaded } = useAuth();
-  const [diaries, setDiaries] = useState<DiaryCardData[]>(mockDiaries);
-  const [recentEntries, setRecentEntries] = useState<RecentEntryData[]>(mockRecentEntries);
-  const [stats, setStats] = useState<DiaryStatsData>(mockDiaryStats);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [diaries, setDiaries] = useState<DiaryCardData[]>([]);
+  const [recentEntries, setRecentEntries] = useState<RecentEntryData[]>([]);
+  const [stats, setStats] = useState<DiaryStatsData>({
+    totalEntries: 0,
+    streakDays: 0,
+    pagesWritten: 0,
+    wordsWritten: 0,
+  });
+  const [loading, setLoading] = useState<boolean>(true);
 
   const fetchData = useCallback(async () => {
     if (!isSignedIn) {
       setDiaries(mockDiaries);
       setRecentEntries(mockRecentEntries);
       setStats(mockDiaryStats);
+      setLoading(false);
       return;
     }
 
@@ -39,7 +45,7 @@ export function useDiaryData() {
             data.diaries.map((d: any) => ({
               id: d.id,
               title: d.title,
-              entriesCount: d.pageCount,
+              entriesCount: d.pageCount ?? (d.entries ? d.entries.length : 0),
               lastEntry: new Date(d.updatedAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -49,8 +55,8 @@ export function useDiaryData() {
             }))
           );
         } else {
-          // If fresh tenant with 0 diaries, keep mockDiaries for pleasant empty state
-          setDiaries(mockDiaries);
+          // Fresh tenant with 0 diaries: display clean fresh dashboard
+          setDiaries([]);
         }
       }
 
@@ -75,6 +81,8 @@ export function useDiaryData() {
               };
             })
           );
+        } else {
+          setRecentEntries([]);
         }
       }
 
@@ -82,10 +90,10 @@ export function useDiaryData() {
         const data = await statsRes.json();
         if (data.stats) {
           setStats({
-            totalEntries: data.stats.totalPages,
-            streakDays: data.stats.streakDays,
-            pagesWritten: data.stats.totalPages,
-            wordsWritten: data.stats.totalPages * 140,
+            totalEntries: data.stats.totalPages || 0,
+            streakDays: data.stats.streakDays || 0,
+            pagesWritten: data.stats.totalPages || 0,
+            wordsWritten: (data.stats.totalPages || 0) * 140,
           });
         }
       }

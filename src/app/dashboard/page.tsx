@@ -12,25 +12,18 @@ import { useDiaryData } from "@/lib/use-diary-data";
 import { Sparkles, X, BookOpen, PenTool, Check } from "lucide-react";
 
 export default function DashboardPage() {
-  const { diaries, recentEntries, stats } = useDiaryData();
+  const { diaries, recentEntries, stats, createDiary } = useDiaryData();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [noticeModal, setNoticeModal] = useState<{
-    open: boolean;
-    title: string;
-    description: string;
-    tag: string;
-  }>({
-    open: false,
-    title: "",
-    description: "",
-    tag: "",
-  });
+  const [isCreatingDiary, setIsCreatingDiary] = useState(false);
+  const [newDiaryModalOpen, setNewDiaryModalOpen] = useState(false);
+  const [newDiaryTitle, setNewDiaryTitle] = useState("");
+  const [newDiaryCover, setNewDiaryCover] = useState<"burgundy" | "forest" | "navy" | "leather">("burgundy");
 
   const handleAction = (actionId: string) => {
     switch (actionId) {
       case "new-entry":
-        window.location.href = "/editor/demo";
+        window.location.href = "/editor/demo?new=true";
         return;
       case "open-diary":
         window.location.href = "/diary/demo";
@@ -51,13 +44,23 @@ export default function DashboardPage() {
   };
 
   const handleCreateDiary = () => {
-    setNoticeModal({
-      open: true,
-      title: "Create New Journal Volume",
-      description:
-        "Select your cover leather (Burgundy, Forest Green, Classic Oak, or Midnight Navy), pick paper ruling (Ruled, Dots, or Blank), and title your collection.",
-      tag: "New Volume Setup",
-    });
+    setNewDiaryTitle("");
+    setNewDiaryCover("burgundy");
+    setNewDiaryModalOpen(true);
+  };
+
+  const handleSubmitNewDiary = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const titleToUse = newDiaryTitle.trim() || "My New Journal";
+    setIsCreatingDiary(true);
+    try {
+      await createDiary(titleToUse, newDiaryCover);
+      setNewDiaryModalOpen(false);
+    } catch (err) {
+      console.error("Failed to create diary:", err);
+    } finally {
+      setIsCreatingDiary(false);
+    }
   };
 
   const handleOpenEntry = (entryId: string) => {
@@ -108,12 +111,12 @@ export default function DashboardPage() {
       {/* Mobile Bottom Navigation Bar */}
       <MobileBottomNav />
 
-      {/* Action Notification Modal */}
-      {noticeModal.open && (
+      {/* Interactive Create New Diary Volume Modal */}
+      {newDiaryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#261A13]/50 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-8 max-w-md w-full relative">
             <button
-              onClick={() => setNoticeModal({ ...noticeModal, open: false })}
+              onClick={() => setNewDiaryModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-[#887564] hover:bg-[#EFE5D5] transition-colors"
             >
               <X className="w-5 h-5" />
@@ -121,25 +124,79 @@ export default function DashboardPage() {
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EFE5D5] text-[#554030] text-xs font-mono uppercase tracking-wider mb-4 border border-[#DDD0BC]">
               <Sparkles className="w-3.5 h-3.5 text-[#B89360]" />
-              <span>{noticeModal.tag}</span>
+              <span>New Volume Setup</span>
             </div>
 
             <h3 className="font-serif text-2xl text-[#261A13] font-normal mb-2">
-              {noticeModal.title}
+              Bind a New Journal
             </h3>
 
-            <p className="text-sm text-[#665547] font-light leading-relaxed mb-6">
-              {noticeModal.description}
+            <p className="text-xs text-[#665547] font-light leading-relaxed mb-5">
+              Give your journal a title and select a leather cover style for your shelf.
             </p>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E8DFC9]">
-              <button
-                onClick={() => setNoticeModal({ ...noticeModal, open: false })}
-                className="px-5 py-2.5 rounded-xl bg-[#342419] text-[#FAF5ED] text-xs font-medium hover:bg-[#483324] transition-colors shadow-xs"
-              >
-                Continue Writing
-              </button>
-            </div>
+            <form onSubmit={handleSubmitNewDiary} className="space-y-4">
+              <div>
+                <label className="block text-xs font-serif text-[#4D3A2C] mb-1.5 font-medium">
+                  Journal Title
+                </label>
+                <input
+                  type="text"
+                  value={newDiaryTitle}
+                  onChange={(e) => setNewDiaryTitle(e.target.value)}
+                  placeholder="e.g. My Personal Journal, Travel Memories..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4EDE2] border border-[#D8C7B0] text-[#2C2016] placeholder:text-[#A49483] text-sm focus:outline-none focus:border-[#8E6945] transition-colors"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-serif text-[#4D3A2C] mb-2 font-medium">
+                  Leather Cover Style
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: "burgundy", label: "Burgundy", bg: "bg-[#3D1E24]" },
+                    { id: "forest", label: "Forest", bg: "bg-[#25392B]" },
+                    { id: "navy", label: "Midnight", bg: "bg-[#1E2B3D]" },
+                    { id: "leather", label: "Classic Oak", bg: "bg-[#38261A]" },
+                  ].map((c) => (
+                    <button
+                      type="button"
+                      key={c.id}
+                      onClick={() => setNewDiaryCover(c.id as any)}
+                      className={`h-12 rounded-xl ${c.bg} border-2 flex flex-col items-center justify-center transition-all ${
+                        newDiaryCover === c.id
+                          ? "border-[#E5C78B] ring-2 ring-[#8E6945]/40 scale-105"
+                          : "border-transparent opacity-80 hover:opacity-100"
+                      }`}
+                    >
+                      <span className="text-[10px] text-[#FAF5ED] font-serif capitalize">
+                        {c.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E8DFC9]">
+                <button
+                  type="button"
+                  onClick={() => setNewDiaryModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingDiary}
+                  className="px-5 py-2.5 rounded-xl bg-[#342419] text-[#FAF5ED] text-xs font-medium hover:bg-[#483324] disabled:opacity-50 transition-colors shadow-xs"
+                >
+                  {isCreatingDiary ? "Binding Volume..." : "Create Volume"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

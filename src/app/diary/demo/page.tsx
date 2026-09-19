@@ -42,11 +42,33 @@ export default function DiaryDemoPage() {
               dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
               mood: e.mood,
               ink: "midnight",
-              paperStyle: "ruled",
+              paperStyle: "lined",
             };
           });
 
           setPages([cover, ...realPages]);
+        } else if (isSignedIn) {
+          // Fresh signed-in user with no entries yet
+          setPages([
+            {
+              id: "fresh-diary-cover",
+              pageNumber: 0,
+              isCover: true,
+              title: "My Personal Journal",
+              content: "",
+            },
+            {
+              id: "fresh-diary-p1",
+              pageNumber: 1,
+              title: "A Blank Canvas",
+              content: "This volume has not been penned yet.\n\nClick '+ Write' in the top corner to compose your first reflection and watch your handwriting appear.",
+              date: "Today",
+              dayOfWeek: "New Journal",
+              mood: "hopeful",
+              ink: "midnight",
+              paperStyle: "lined",
+            },
+          ]);
         }
       })
       .catch((err) => console.error("Error loading user entries:", err));

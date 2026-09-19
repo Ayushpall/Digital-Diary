@@ -28,14 +28,30 @@ import {
   FileText
 } from "lucide-react";
 
-export default function EditorDemoPage() {
-  const { isSignedIn } = useAuth();
-  const [title, setTitle] = useState("Thoughts on Machine & Mind");
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+function EditorDemoContent() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const searchParams = useSearchParams();
+  const isNewParam = searchParams.get("new") === "true";
+  const entryIdParam = searchParams.get("id");
+
+  const [entryId, setEntryId] = useState<string | null>(entryIdParam);
+  const [title, setTitle] = useState(isNewParam ? "" : "Thoughts on Machine & Mind");
   const [content, setContent] = useState(
-    "Today I learned something interesting about artificial intelligence.\n\nWhile computers compute patterns at astronomical speeds, they don't possess human nostalgia or the quiet feeling of writing by candlelight. Tools like this remind me that technology is at its best when it serves human reflection, rather than replacing it."
+    isNewParam
+      ? ""
+      : "Today I learned something interesting about artificial intelligence.\n\nWhile computers compute patterns at astronomical speeds, they don't possess human nostalgia or the quiet feeling of writing by candlelight. Tools like this remind me that technology is at its best when it serves human reflection, rather than replacing it."
   );
 
-  const [date, setDate] = useState("18 September 2026");
+  const [date, setDate] = useState(
+    new Date().toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
+  );
   const [mood, setMood] = useState<DiaryMood>("happy");
   const [activeDraftTab, setActiveDraftTab] = useState<"text" | "photo" | "sketch" | "stickers">("text");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("saved");
@@ -55,14 +71,110 @@ export default function EditorDemoPage() {
     isUnderline: false,
   });
 
-  // Simulated auto-save timer
+  // Track if this is the initial mount to prevent immediate blank overwrite
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Load existing entry if id param is provided
   useEffect(() => {
+    if (entryIdParam && isLoaded) {
+      fetch(`/api/entries/${entryIdParam}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && data.entry) {
+            setTitle(data.entry.title || "");
+            setContent(data.entry.content || "");
+            if (data.entry.blocks) setBlocks(data.entry.blocks);
+            if (data.entry.mood) setMood(data.entry.mood);
+            if (data.entry.handwritingFont) {
+              setSettings((prev) => ({ ...prev, font: data.entry.handwritingFont }));
+            }
+            if (data.entry.inkColor) {
+              setSettings((prev) => ({ ...prev, inkColor: data.entry.inkColor }));
+            }
+          }
+          setHasInitialized(true);
+        })
+        .catch(() => setHasInitialized(true));
+    } else {
+      // If guest has local draft and not explicitly ?new=true, restore it
+      if (!isNewParam && typeof window !== "undefined") {
+        const savedDraft = localStorage.getItem("digital_diary_draft");
+        if (savedDraft) {
+          try {
+            const parsed = JSON.parse(savedDraft);
+            if (parsed.title) setTitle(parsed.title);
+            if (parsed.content) setContent(parsed.content);
+            if (parsed.blocks) setBlocks(parsed.blocks);
+          } catch {}
+        }
+      }
+      setHasInitialized(true);
+    }
+  }, [entryIdParam, isNewParam, isLoaded]);
+
+  // Real Debounced Auto-Save (1200ms debounce)
+  useEffect(() => {
+    if (!hasInitialized) return;
+
+    // Only save if there is content or title
+    if (!title.trim() && !content.trim() && blocks.length === 0) {
+      setSaveStatus("idle");
+      return;
+    }
+
     setSaveStatus("saving");
-    const timer = setTimeout(() => {
-      setSaveStatus("saved");
-    }, 800);
+
+    const timer = setTimeout(async () => {
+      try {
+        if (isSignedIn) {
+          const payload = {
+            title: title.trim() || "Untitled Entry",
+            content,
+            blocks,
+            handwritingFont: settings.font,
+            inkColor: settings.inkColor,
+            mood,
+          };
+
+          if (entryId) {
+            // Update existing entry
+            await fetch(`/api/entries/${entryId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          } else {
+            // Create new entry
+            const res = await fetch("/api/entries", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.entry?.id) {
+                setEntryId(data.entry.id);
+                // Update URL quietly without full page reload
+                window.history.replaceState(null, "", `/editor/demo?id=${data.entry.id}`);
+              }
+            }
+          }
+        } else {
+          // Guest draft saved locally in browser
+          localStorage.setItem(
+            "digital_diary_draft",
+            JSON.stringify({ title, content, blocks, mood, settings })
+          );
+        }
+        setSaveStatus("saved");
+      } catch (err) {
+        console.error("Auto-save error:", err);
+        setSaveStatus("idle");
+      }
+    }, 1200);
+
     return () => clearTimeout(timer);
-  }, [title, content, settings, mood, blocks]);
+  }, [title, content, settings, mood, blocks, isSignedIn, entryId, hasInitialized]);
 
   const handleUpdateSettings = (updates: Partial<EditorSettings>) => {
     setSettings((prev) => ({ ...prev, ...updates }));
@@ -72,25 +184,47 @@ export default function EditorDemoPage() {
     setSaveStatus("saving");
     try {
       if (isSignedIn) {
-        await fetch("/api/entries", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            content,
-            blocks,
-            handwritingFont: settings.font,
-            inkColor: settings.inkColor,
-            mood,
-          }),
-        });
+        const payload = {
+          title: title.trim() || "Untitled Entry",
+          content,
+          blocks,
+          handwritingFont: settings.font,
+          inkColor: settings.inkColor,
+          mood,
+        };
+
+        if (entryId) {
+          await fetch(`/api/entries/${entryId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        } else {
+          const res = await fetch("/api/entries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.entry?.id) {
+              setEntryId(data.entry.id);
+              window.history.replaceState(null, "", `/editor/demo?id=${data.entry.id}`);
+            }
+          }
+        }
+      } else {
+        localStorage.setItem(
+          "digital_diary_draft",
+          JSON.stringify({ title, content, blocks, mood, settings })
+        );
       }
-    } catch (e) {
-      console.error("Save error:", e);
-    } finally {
       setSaveStatus("saved");
       setShowSavedToast(true);
       setTimeout(() => setShowSavedToast(false), 3000);
+    } catch (e) {
+      console.error("Save error:", e);
+      setSaveStatus("idle");
     }
   };
 
@@ -395,5 +529,19 @@ export default function EditorDemoPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function EditorDemoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F8F4EC] flex items-center justify-center font-serif text-[#554030]">
+          Preparing Studio...
+        </div>
+      }
+    >
+      <EditorDemoContent />
+    </Suspense>
   );
 }

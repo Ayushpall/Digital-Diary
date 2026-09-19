@@ -29,7 +29,7 @@ export function MobileBottomNav() {
     },
     {
       label: "Write",
-      href: "/editor/demo",
+      href: "/editor/demo?new=true",
       icon: PenTool,
       isActive: pathname.startsWith("/editor"),
       isPrimary: true,
