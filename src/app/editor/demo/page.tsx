@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { EditorSettings } from "@/types/editor";
 import { PageBlock, DiaryMood, StickerItem } from "@/types/creative";
 import { EditorToolbar } from "@/components/editor/EditorToolbar";
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 
 export default function EditorDemoPage() {
+  const { isSignedIn } = useAuth();
   const [title, setTitle] = useState("Thoughts on Machine & Mind");
   const [content, setContent] = useState(
     "Today I learned something interesting about artificial intelligence.\n\nWhile computers compute patterns at astronomical speeds, they don't possess human nostalgia or the quiet feeling of writing by candlelight. Tools like this remind me that technology is at its best when it serves human reflection, rather than replacing it."
@@ -66,13 +68,30 @@ export default function EditorDemoPage() {
     setSettings((prev) => ({ ...prev, ...updates }));
   };
 
-  const handleManualSave = () => {
+  const handleManualSave = async () => {
     setSaveStatus("saving");
-    setTimeout(() => {
+    try {
+      if (isSignedIn) {
+        await fetch("/api/entries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            content,
+            blocks,
+            handwritingFont: settings.font,
+            inkColor: settings.inkColor,
+            mood,
+          }),
+        });
+      }
+    } catch (e) {
+      console.error("Save error:", e);
+    } finally {
       setSaveStatus("saved");
       setShowSavedToast(true);
       setTimeout(() => setShowSavedToast(false), 3000);
-    }, 500);
+    }
   };
 
   // Creative Block Actions

@@ -1,12 +1,57 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { DiaryBook } from "@/components/diary/DiaryBook";
 import { sampleDiaryPages } from "@/lib/diary-data";
-import { Feather, ArrowLeft, BookOpen, Sparkles, Home } from "lucide-react";
+import { DiaryPageData } from "@/types/diary";
+import { Feather, ArrowLeft, Sparkles, Home } from "lucide-react";
 
 export default function DiaryDemoPage() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const [pages, setPages] = useState<DiaryPageData[]>(sampleDiaryPages);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
+
+    fetch("/api/entries")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.entries && data.entries.length > 0) {
+          const cover: DiaryPageData = {
+            id: "user-diary-cover",
+            pageNumber: 0,
+            isCover: true,
+            title: data.entries[0]?.diaryTitle || "My Personal Journal",
+            content: "",
+          };
+
+          const realPages: DiaryPageData[] = data.entries.map((e: any, index: number) => {
+            const d = new Date(e.date);
+            return {
+              id: e.id,
+              pageNumber: index + 1,
+              title: e.title,
+              content: e.content,
+              date: d.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }),
+              dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
+              mood: e.mood,
+              ink: "midnight",
+              paperStyle: "ruled",
+            };
+          });
+
+          setPages([cover, ...realPages]);
+        }
+      })
+      .catch((err) => console.error("Error loading user entries:", err));
+  }, [isSignedIn, isLoaded]);
+
   return (
     <div className="min-h-screen bg-[#2A1D16] text-[#FAF5ED] flex flex-col justify-between relative overflow-hidden">
       {/* Warm atmospheric candlelight desk glow in the background */}
@@ -67,7 +112,7 @@ export default function DiaryDemoPage() {
 
       {/* Main Reading Stage */}
       <main className="relative z-10 flex-1 flex items-center justify-center px-2.5 sm:px-6 md:px-8 py-6 md:py-12">
-        <DiaryBook pages={sampleDiaryPages} initialOpen={true} />
+        <DiaryBook pages={pages} initialOpen={true} />
       </main>
 
       {/* Bottom Subtle Ambient Footer */}
