@@ -8,10 +8,11 @@ import { DiaryGrid } from "@/components/dashboard/DiaryGrid";
 import { RecentEntries } from "@/components/dashboard/RecentEntries";
 import { DiaryStats } from "@/components/dashboard/DiaryStats";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { mockDiaries, mockRecentEntries, mockDiaryStats } from "@/lib/mock-data";
+import { useDiaryData } from "@/lib/use-diary-data";
 import { Sparkles, X, BookOpen, PenTool, Check } from "lucide-react";
 
 export default function DashboardPage() {
+  const { diaries, recentEntries, stats } = useDiaryData();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [noticeModal, setNoticeModal] = useState<{
@@ -87,20 +88,20 @@ export default function DashboardPage() {
 
           {/* Section 2: My Diaries */}
           <DiaryGrid
-            diaries={mockDiaries}
+            diaries={diaries}
             onOpenDiary={handleOpenDiary}
             onCreateDiary={handleCreateDiary}
           />
 
           {/* Section 3: Recent Entries */}
           <RecentEntries
-            entries={mockRecentEntries}
+            entries={recentEntries}
             onOpenEntry={handleOpenEntry}
             onViewAll={() => handleAction("calendar")}
           />
 
           {/* Section 4: Diary Statistics */}
-          <DiaryStats stats={mockDiaryStats} />
+          <DiaryStats stats={stats} />
         </div>
       </main>
 

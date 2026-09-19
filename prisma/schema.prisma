@@ -10,18 +10,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Temporary minimal model for Step 1 connection verification
+// Health check model for connectivity verification
 model HealthCheck {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 }
 
-// User model synchronized with Clerk authentication
+// Multi-tenant User model synchronized with Clerk Authentication
 model User {
-  id        String   @id // Clerk user ID (e.g. user_2...)
+  id        String   @id // Clerk user ID (e.g. user_xxx)
   email     String   @unique
   name      String?
   imageUrl  String?
+  tier      String   @default("free") // "free" | "pro"
+  diaries   Diary[]
+  entries   Entry[]
+  tags      Tag[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Multi-tenant Diary (Journal Volume)
+model Diary {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  coverColor  String   @default("burgundy") // burgundy | forest | oak | navy
+  paperStyle  String   @default("ruled")    // ruled | dots | blank
+  isFavorite  Boolean  @default(false)
+  entries     Entry[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// Multi-tenant Entry (Journal Page)
+model Entry {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  diaryId         String
+  diary           Diary    @relation(fields: [diaryId], references: [id], onDelete: Cascade)
+  title           String
+  content         String   @db.Text
+  blocks          Json?    // Optional structured creative blocks (images, stickers, drawings)
+  handwritingFont String   @default("Newsreader")
+  inkColor        String   @default("#1A2536")
+  date            DateTime @default(now())
+  mood            String?
+  weather         String?
+  isFavorite      Boolean  @default(false)
+  tags            Tag[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([diaryId])
+  @@index([date])
+}
+
+// Multi-tenant Tag
+model Tag {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  entries   Entry[]
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name])
+  @@index([userId])
 }
