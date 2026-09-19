@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #F8F4EC;
+  --foreground: #2C2621;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide scrollbar for clean mobile horizontal toolbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tactile Paper Texture and Ruled Patterns */
+.paper-pattern-lined {
+  background-color: #FAF6ED;
+  background-image: linear-gradient(to bottom, rgba(180, 155, 130, 0.22) 1px, transparent 1px);
+  background-size: 100% 32px;
+  background-position: 0 12px;
+}
+
+.paper-pattern-dots {
+  background-color: #FAF6ED;
+  background-image: radial-gradient(rgba(180, 155, 130, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.paper-pattern-plain {
+  background-color: #FAF6ED;
+}
+
+/* Subtle organic paper grain overlay */
+.paper-grain {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 0);
+  background-size: 4px 4px;
+}
+
+/* Journal Spine 3D Crease */
+.journal-spine-crease {
+  box-shadow: 
+    inset 18px 0 24px -14px rgba(45, 30, 20, 0.35),
+    inset -18px 0 24px -14px rgba(45, 30, 20, 0.35);
+}
+
+.left-page-spine {
+  box-shadow: inset -22px 0 24px -15px rgba(42, 28, 18, 0.38);
+}
+
+.right-page-spine {
+  box-shadow: inset 22px 0 24px -15px rgba(42, 28, 18, 0.38);
+}
+
+/* Page Stack Depth */
+.page-edge-depth {
+  box-shadow: 
+    2px 2px 0 #EBE2D2,
+    4px 4px 0 #E4D8C4,
+    6px 6px 0 #DECDB6,
+    8px 8px 16px rgba(42, 28, 18, 0.18);
+}
+
+/* Handwriting Typography Smoothing & Ink Flow */
+.handwriting-ink {
+  font-family: var(--font-caveat), cursive;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga", "calt";
+  line-height: 32px;
+}
+
+/* Ribbon Bookmark drape */
+.ribbon-tail {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 86%, 0 100%);
+}
+
+/* Leather Texture Background for Book Outer */
+.leather-outer {
+  background: radial-gradient(circle at 50% 50%, #3D2B20 0%, #241912 100%);
+  box-shadow: 0 30px 60px -15px rgba(25, 16, 10, 0.45);
+}
+
+/* Accessible Focus Rings with Warm Golden Ink Hue */
+.diary-focus:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  ring: 2px;
+  ring-color: #B89360;
+  box-shadow: 0 0 0 2px #FAF6EE, 0 0 0 4px #B89360;
+}
+
+/* Tactile Physical Press Feel */
+.diary-button-press:active {
+  transform: scale(0.96);
+  transition: transform 0.08s ease-out;
+}
+
+/* Calming, Accessible Reduced Motion Mode */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

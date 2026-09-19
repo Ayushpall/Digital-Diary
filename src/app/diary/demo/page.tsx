@@ -1,0 +1,79 @@
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { DiaryBook } from "@/components/diary/DiaryBook";
+import { sampleDiaryPages } from "@/lib/diary-data";
+import { Feather, ArrowLeft, BookOpen, Sparkles, Home } from "lucide-react";
+
+export default function DiaryDemoPage() {
+  return (
+    <div className="min-h-screen bg-[#2A1D16] text-[#FAF5ED] flex flex-col justify-between relative overflow-hidden">
+      {/* Warm atmospheric candlelight desk glow in the background */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-[#694226]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+
+      {/* Top Header Navigation */}
+      <header className="relative z-20 px-3 sm:px-8 py-3.5 sm:py-5 flex items-center justify-between gap-2 border-b border-[#4A3427]/60 backdrop-blur-xs bg-[#241710]/80">
+        {/* Back navigation */}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-xl bg-[#362318] hover:bg-[#4A3223] text-[#DFD1BF] border border-[#523A2B] text-xs font-serif transition-colors shadow-xs active:scale-95"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-[#D8B97C]" />
+            <span>Dashboard</span>
+          </Link>
+
+          <Link
+            href="/"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[#A69382] hover:text-[#FAF5ED] text-xs font-serif transition-colors"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Landing</span>
+          </Link>
+        </div>
+
+        {/* Title Center */}
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#3D281C] flex items-center justify-center text-[#E5C78B] border border-[#5C3F2C]">
+            <Feather className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </div>
+          <div>
+            <span className="font-serif text-sm sm:text-lg text-[#FAF5ED] font-normal tracking-tight block">
+              The Reading Room
+            </span>
+            <span className="text-[9px] sm:text-[10px] text-[#A68F7B] font-mono block -mt-0.5 sm:-mt-1 uppercase tracking-wider hidden xs:block">
+              Physical Simulation
+            </span>
+          </div>
+        </div>
+
+        {/* Hints & Write Button */}
+        <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#362318] border border-[#523A2B] text-xs font-serif italic text-[#C9B7A3]">
+            <Sparkles className="w-3.5 h-3.5 text-[#D8B97C]" />
+            <span>Use ← → Arrow keys to turn pages</span>
+          </div>
+
+          <Link
+            href="/editor/demo"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[38px] rounded-xl bg-[#D8B97C] hover:bg-[#E5C78B] text-[#24160C] text-xs font-medium transition-colors shadow-xs active:scale-95 whitespace-nowrap"
+          >
+            <span>+ Write</span>
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Reading Stage */}
+      <main className="relative z-10 flex-1 flex items-center justify-center px-2.5 sm:px-6 md:px-8 py-6 md:py-12">
+        <DiaryBook pages={sampleDiaryPages} initialOpen={true} />
+      </main>
+
+      {/* Bottom Subtle Ambient Footer */}
+      <footer className="relative z-10 px-4 py-4 border-t border-[#4A3427]/40 text-center text-xs font-serif italic text-[#887463]">
+        <span>Digital Diary • Crafted to feel like authentic pen on paper</span>
+      </footer>
+    </div>
+  );
+}
