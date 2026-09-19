@@ -6,8 +6,8 @@ A phased execution plan for building the Digital Diary web application, focusing
 ---
 
 ### Phase 1: Project Scaffolding & Paper Journal Canvas
-**Goal**: Initialize Next.js project with TypeScript, Tailwind CSS, Framer Motion, and Lucide Icons, establishing the foundational design system and tactile warm paper journal canvas.
-**Mode**: mvp
+**Goal:** As a personal journaler, I want to type my thoughts on keyboard and have them render as realistic handwriting on warm paper pages with physical page-flipping, so that I can capture my private memories with the authentic tactile feeling of a real notebook.
+**Mode:** mvp
 - [ ] Initialize Next.js application with TypeScript, Tailwind CSS, and App Router
 - [ ] Install core dependencies (`framer-motion`, `lucide-react`, `clsx`, `tailwind-merge`)
 - [ ] Implement warm paper color palette, textures, realistic journal margins, book spine, and soft depth shadows
