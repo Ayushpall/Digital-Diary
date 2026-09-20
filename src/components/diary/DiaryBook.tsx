@@ -13,15 +13,25 @@ import {
   RotateCcw,
   Sparkles,
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  Trash2,
 } from "lucide-react";
 
 interface DiaryBookProps {
   pages: DiaryPageData[];
   initialOpen?: boolean;
+  coverStyle?: string;
+  title?: string;
+  onDeleteCurrentPage?: (page: DiaryPageData) => void;
 }
 
-export function DiaryBook({ pages, initialOpen = true }: DiaryBookProps) {
+export function DiaryBook({
+  pages,
+  initialOpen = true,
+  coverStyle = "embossed-leather",
+  title = "MY JOURNAL",
+  onDeleteCurrentPage,
+}: DiaryBookProps) {
   const [isOpen, setIsOpen] = useState(initialOpen);
   // pageIndex is the index in `pages` for the left page in two-page spread (0, 2, 4...)
   const [pageIndex, setPageIndex] = useState(0);
@@ -139,7 +149,11 @@ export function DiaryBook({ pages, initialOpen = true }: DiaryBookProps) {
   if (!isOpen) {
     return (
       <div className="py-8 sm:py-12 flex flex-col items-center">
-        <DiaryCover onOpen={() => setIsOpen(true)} />
+        <DiaryCover
+          onOpen={() => setIsOpen(true)}
+          coverStyle={coverStyle}
+          title={title}
+        />
       </div>
     );
   }
@@ -153,14 +167,27 @@ export function DiaryBook({ pages, initialOpen = true }: DiaryBookProps) {
   return (
     <div className="w-full max-w-5xl mx-auto select-none">
       {/* Top Controls Toolbar */}
-      <div className="mb-4 sm:mb-6 flex items-center justify-between px-2 sm:px-4 text-xs font-serif">
-        <button
-          onClick={() => setIsOpen(false)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#4A3728] border border-[#D8C7B0] transition-colors shadow-2xs"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Close Cover</span>
-        </button>
+      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-2 px-2 sm:px-4 text-xs font-serif">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#4A3728] border border-[#D8C7B0] transition-colors shadow-2xs"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Close Cover</span>
+          </button>
+
+          {onDeleteCurrentPage && leftPage && !leftPage.isCover && (
+            <button
+              onClick={() => onDeleteCurrentPage(leftPage)}
+              title="Delete this journal page"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8ECE8] hover:bg-[#8B261E] text-[#8B261E] hover:text-[#FAF5ED] border border-[#E8C5BE] hover:border-[#8B261E] transition-all shadow-2xs"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Delete Page</span>
+            </button>
+          )}
+        </div>
 
         {/* Page counter & reading status */}
         <div className="flex items-center gap-2 text-[#7C6958]">

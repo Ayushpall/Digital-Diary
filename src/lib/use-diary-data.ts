@@ -136,6 +136,70 @@ export function useDiaryData() {
     }
   };
 
+  const deleteDiary = async (diaryId: string) => {
+    if (!isSignedIn) {
+      setDiaries((prev) => prev.filter((d) => d.id !== diaryId));
+      return true;
+    }
+
+    try {
+      const res = await fetch(`/api/diaries/${diaryId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        await fetchData();
+        return true;
+      }
+    } catch (err) {
+      console.error("Failed to delete diary:", err);
+    }
+    return false;
+  };
+
+  const deleteEntry = async (entryId: string) => {
+    if (!isSignedIn) {
+      setRecentEntries((prev) => prev.filter((e) => e.id !== entryId));
+      return true;
+    }
+
+    try {
+      const res = await fetch(`/api/entries/${entryId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        await fetchData();
+        return true;
+      }
+    } catch (err) {
+      console.error("Failed to delete entry:", err);
+    }
+    return false;
+  };
+
+  const updateDiaryCover = async (diaryId: string, coverColor: string) => {
+    if (!isSignedIn) {
+      setDiaries((prev) =>
+        prev.map((d) => (d.id === diaryId ? { ...d, coverColor: coverColor as any } : d))
+      );
+      return true;
+    }
+
+    try {
+      const res = await fetch(`/api/diaries/${diaryId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coverColor }),
+      });
+      if (res.ok) {
+        await fetchData();
+        return true;
+      }
+    } catch (err) {
+      console.error("Failed to update diary cover:", err);
+    }
+    return false;
+  };
+
   return {
     diaries,
     recentEntries,
@@ -143,5 +207,8 @@ export function useDiaryData() {
     loading,
     refresh: fetchData,
     createDiary,
+    deleteDiary,
+    deleteEntry,
+    updateDiaryCover,
   };
 }

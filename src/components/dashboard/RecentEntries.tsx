@@ -2,17 +2,19 @@
 
 import React from "react";
 import { RecentEntryData } from "@/types/dashboard";
-import { BookOpen, Calendar, ArrowRight, PenTool } from "lucide-react";
+import { BookOpen, Calendar, ArrowRight, PenTool, Trash2 } from "lucide-react";
 
 interface RecentEntriesProps {
   entries: RecentEntryData[];
   onOpenEntry?: (entryId: string) => void;
+  onDeleteEntry?: (entryId: string, entryTitle: string) => void;
   onViewAll?: () => void;
 }
 
 export function RecentEntries({
   entries,
   onOpenEntry,
+  onDeleteEntry,
   onViewAll,
 }: RecentEntriesProps) {
   return (
@@ -94,8 +96,8 @@ export function RecentEntries({
                 </p>
               </div>
 
-              {/* Action: Open Button */}
-              <div className="pl-4 md:pl-0 flex items-center justify-end">
+              {/* Action: Open & Delete Buttons */}
+              <div className="pl-4 md:pl-0 flex items-center justify-end gap-2">
                 <button
                   onClick={() => onOpenEntry?.(entry.id)}
                   className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#EFE5D5] hover:bg-[#342419] text-[#422F22] hover:text-[#FAF5ED] text-xs font-medium border border-[#D8C7B0] hover:border-[#342419] transition-all duration-200 shadow-2xs"
@@ -103,6 +105,18 @@ export function RecentEntries({
                   <BookOpen className="w-3.5 h-3.5 text-[#B89360]" />
                   <span>Open Page</span>
                 </button>
+                {onDeleteEntry && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteEntry(entry.id, entry.title);
+                    }}
+                    className="p-2 rounded-xl bg-[#EFE5D5] hover:bg-[#F2DFDF] text-[#917E6E] hover:text-[#B33939] border border-[#D8C7B0] hover:border-[#D5AFAF] transition-colors shadow-2xs"
+                    title="Delete reflection"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           ))}

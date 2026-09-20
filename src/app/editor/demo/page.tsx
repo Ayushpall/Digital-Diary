@@ -30,7 +30,8 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  Trash2,
 } from "lucide-react";
 
 import { useSearchParams } from "next/navigation";
@@ -62,6 +63,8 @@ function EditorDemoContent() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("saved");
   const [activeMobileView, setActiveMobileView] = useState<"write" | "preview">("write");
   const [showSavedToast, setShowSavedToast] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Creative page blocks (Image, Drawing, Stickers)
   const [blocks, setBlocks] = useState<PageBlock[]>([]);
@@ -238,6 +241,24 @@ function EditorDemoContent() {
     }
   };
 
+  const handleDeleteEntry = async () => {
+    setIsDeleting(true);
+    try {
+      if (entryId && isSignedIn) {
+        await fetch(`/api/entries/${entryId}`, { method: "DELETE" });
+      }
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("digital_diary_draft");
+      }
+      window.location.href = "/dashboard";
+    } catch (err) {
+      console.error("Failed to delete entry:", err);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   // Creative Block Actions
   const handleAddImage = (dataUrl: string, caption?: string) => {
     const newBlock: PageBlock = {
@@ -338,7 +359,7 @@ function EditorDemoContent() {
           </div>
         </div>
 
-        {/* Right: Save Button & Quick Navigation */}
+        {/* Right: Delete & Save Buttons & Quick Navigation */}
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard"
@@ -346,6 +367,16 @@ function EditorDemoContent() {
           >
             Dashboard
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            title="Delete this page"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF0ED] hover:bg-[#8B261E] text-[#8B261E] hover:text-[#FAF5ED] border border-[#E8C5BE] hover:border-[#8B261E] transition-all shadow-2xs text-xs font-serif active:scale-95"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Delete</span>
+          </button>
 
           <button
             onClick={handleManualSave}
@@ -625,6 +656,38 @@ function EditorDemoContent() {
           >
             <X className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+
+      {/* Delete Entry Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-7 max-w-sm w-full text-[#2C2016]">
+            <h3 className="font-serif text-xl font-medium mb-2 text-[#24160C]">
+              Discard This Entry?
+            </h3>
+            <p className="text-xs text-[#6B5A4B] font-light leading-relaxed mb-6">
+              Are you sure you want to delete &ldquo;{title || "Untitled Entry"}&rdquo;? This page will be permanently removed from your digital diary collection.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteEntry}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-[#8B261E] hover:bg-[#A83228] text-[#FAF5ED] text-xs font-medium transition-colors shadow-xs"
+              >
+                {isDeleting ? "Deleting..." : "Delete Permanently"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

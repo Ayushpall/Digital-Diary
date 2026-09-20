@@ -9,16 +9,48 @@ import { RecentEntries } from "@/components/dashboard/RecentEntries";
 import { DiaryStats } from "@/components/dashboard/DiaryStats";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { useDiaryData } from "@/lib/use-diary-data";
-import { Sparkles, X, BookOpen, PenTool, Check } from "lucide-react";
+import { COVER_THEMES, getCoverTheme } from "@/lib/cover-themes";
+import { DiaryCoverStyle } from "@/types/dashboard";
+import {
+  Sparkles,
+  X,
+  BookOpen,
+  PenTool,
+  Check,
+  Trash2,
+  Palette,
+  Feather,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function DashboardPage() {
-  const { diaries, recentEntries, stats, createDiary } = useDiaryData();
+  const {
+    diaries,
+    recentEntries,
+    stats,
+    createDiary,
+    deleteDiary,
+    deleteEntry,
+    updateDiaryCover,
+  } = useDiaryData();
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isCreatingDiary, setIsCreatingDiary] = useState(false);
   const [newDiaryModalOpen, setNewDiaryModalOpen] = useState(false);
   const [newDiaryTitle, setNewDiaryTitle] = useState("");
-  const [newDiaryCover, setNewDiaryCover] = useState<"burgundy" | "forest" | "navy" | "leather">("burgundy");
+  const [newDiaryCover, setNewDiaryCover] = useState<DiaryCoverStyle>("embossed-leather");
+
+  // Deletion modals state
+  const [diaryToDelete, setDiaryToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [entryToDelete, setEntryToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Theme change feedback
+  const [themeToast, setThemeToast] = useState<string | null>(null);
+
+  const primaryDiary = diaries.length > 0 ? diaries[0] : null;
 
   const handleAction = (actionId: string) => {
     switch (actionId) {
@@ -45,7 +77,7 @@ export default function DashboardPage() {
 
   const handleCreateDiary = () => {
     setNewDiaryTitle("");
-    setNewDiaryCover("burgundy");
+    setNewDiaryCover("embossed-leather");
     setNewDiaryModalOpen(true);
   };
 
@@ -65,6 +97,44 @@ export default function DashboardPage() {
 
   const handleOpenEntry = (entryId: string) => {
     window.location.href = `/editor/demo?id=${encodeURIComponent(entryId)}`;
+  };
+
+  const handleConfirmDeleteDiary = async () => {
+    if (!diaryToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteDiary(diaryToDelete.id);
+      setDiaryToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete diary:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleConfirmDeleteEntry = async () => {
+    if (!entryToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteEntry(entryToDelete.id);
+      setEntryToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete entry:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleApplyCoverTheme = async (themeId: DiaryCoverStyle) => {
+    if (!primaryDiary) return;
+    try {
+      await updateDiaryCover(primaryDiary.id, themeId);
+      const theme = getCoverTheme(themeId);
+      setThemeToast(theme.name);
+      setTimeout(() => setThemeToast(null), 3500);
+    } catch (err) {
+      console.error("Failed to update cover theme:", err);
+    }
   };
 
   return (
@@ -89,96 +159,201 @@ export default function DashboardPage() {
           {/* Section 1: Quick Actions */}
           <QuickActions onActionClick={handleAction} />
 
-          {/* Section 2: My Diaries */}
+          {/* Section 2: My Diaries with Deletion Option */}
           <DiaryGrid
             diaries={diaries}
             onOpenDiary={handleOpenDiary}
             onCreateDiary={handleCreateDiary}
+            onDeleteDiary={(diaryId) => {
+              const d = diaries.find((item) => item.id === diaryId);
+              setDiaryToDelete(d ? { id: d.id, title: d.title } : { id: diaryId, title: "this diary" });
+            }}
           />
 
-          {/* Section 3: Recent Entries */}
+          {/* Section 3: Recent Entries with Deletion Option */}
           <RecentEntries
             entries={recentEntries}
             onOpenEntry={handleOpenEntry}
             onViewAll={() => handleAction("calendar")}
+            onDeleteEntry={(entryId) => {
+              const e = recentEntries.find((item) => item.id === entryId);
+              setEntryToDelete(e ? { id: e.id, title: e.title } : { id: entryId, title: "this entry" });
+            }}
           />
 
           {/* Section 4: Diary Statistics */}
           <DiaryStats stats={stats} />
 
-          {/* Section 5: Journal Settings & Personal Profile */}
-          <section id="settings-section" className="mt-12 mb-16 pt-8 border-t border-[#DECDB8]">
-            <div className="flex items-center justify-between mb-6">
+          {/* Section 5: Journal Themes & Heirloom Covers Gallery */}
+          <section id="themes-section" className="mt-12 mb-16 pt-8 border-t border-[#DECDB8]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EFE5D5] text-[#554030] text-xs font-mono uppercase tracking-wider mb-2 border border-[#DDD0BC]">
+                  <Palette className="w-3.5 h-3.5 text-[#B89360]" />
+                  <span>Cover Themes Gallery</span>
+                </div>
                 <h2 className="font-serif text-xl sm:text-2xl text-[#261A13] font-normal">
-                  Settings & Preferences
+                  Journal Cover Themes & Art
                 </h2>
                 <p className="text-xs text-[#7A6756] font-light">
-                  Manage your personal writing desk, default typography, and private workspace
+                  Personalize your bound volumes with illustrated keepsake art or classic heirloom leathers.
                 </p>
+              </div>
+
+              {primaryDiary && (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#FAF6EE] border border-[#D8C7B0] text-xs font-serif text-[#463324] shadow-2xs">
+                  <span className="text-[#8C7662]">Current Volume:</span>
+                  <span className="font-semibold text-[#2C1D13]">{getCoverTheme(primaryDiary.coverColor).name}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Illustrated Art Covers Showcase */}
+            <div className="mb-8">
+              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider text-[#685341] mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#B89360]" />
+                <span>Illustrated Keepsake Covers</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {COVER_THEMES.filter((t) => t.category === "art").map((theme) => {
+                  const isActive = primaryDiary?.coverColor === theme.id;
+                  return (
+                    <div
+                      key={theme.id}
+                      className={`group relative rounded-2xl overflow-hidden bg-[#FAF6EE] border-2 transition-all duration-300 shadow-xs hover:shadow-lg flex flex-col justify-between ${
+                        isActive
+                          ? "border-[#B89360] ring-2 ring-[#B89360]/30 shadow-md"
+                          : "border-[#DDD0BC] hover:border-[#8E6945]"
+                      }`}
+                    >
+                      {/* Cover Thumbnail */}
+                      <div className="relative h-52 overflow-hidden bg-[#241710]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={theme.imageUrl}
+                          alt={theme.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+
+                        {/* Ribbon Bookmark simulation */}
+                        <div className="absolute top-0 right-5 w-3.5 h-14 shadow-md pointer-events-none z-10 opacity-90">
+                          <div className={`w-full h-full ${theme.ribbonColor} ribbon-tail`} />
+                        </div>
+
+                        {isActive && (
+                          <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#342419]/90 backdrop-blur-xs border border-[#E5C78B]/70 text-[#FAF5ED] text-[10px] font-mono tracking-wider uppercase shadow-md">
+                            <Check className="w-3 h-3 text-[#E5C78B]" />
+                            <span>Active Cover</span>
+                          </div>
+                        )}
+
+                        {theme.tagline && (
+                          <div className="absolute bottom-3 left-3 right-3 text-[11px] font-serif italic text-[#FAF5ED]/90 leading-tight drop-shadow-sm pointer-events-none">
+                            &ldquo;{theme.tagline}&rdquo;
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Cover Info & Action Button */}
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h4 className="font-serif text-sm font-medium text-[#261A13] mb-1 group-hover:text-[#8E6945] transition-colors">
+                            {theme.name}
+                          </h4>
+                          <p className="text-[11px] text-[#786657] font-light leading-relaxed mb-3">
+                            {theme.subtitle}
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleApplyCoverTheme(theme.id as DiaryCoverStyle)}
+                          disabled={isActive}
+                          className={`w-full py-2 px-3 rounded-xl text-xs font-serif font-medium transition-all shadow-2xs flex items-center justify-center gap-1.5 ${
+                            isActive
+                              ? "bg-[#EFE5D5] text-[#7C6958] cursor-default border border-[#DDD0BC]"
+                              : "bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] border border-[#483324] active:scale-98"
+                          }`}
+                        >
+                          {isActive ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[#B89360]" />
+                              <span>Current Primary Cover</span>
+                            </>
+                          ) : (
+                            <>
+                              <Palette className="w-3.5 h-3.5 text-[#E5C78B]" />
+                              <span>Apply to Journal</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card 1: Writing Environment */}
-              <div className="p-6 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
-                <h3 className="font-serif text-lg text-[#261A13] font-medium mb-1">
-                  Writing Atmosphere
-                </h3>
-                <p className="text-xs text-[#736253] font-light mb-4">
-                  Default ink colors, paper rulings, and sensory features.
-                </p>
+            {/* Classic Bookbinding Leather Swatches */}
+            <div>
+              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider text-[#685341] mb-3 flex items-center gap-2">
+                <Feather className="w-4 h-4 text-[#B89360]" />
+                <span>Classic Bookbinding Leathers</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {COVER_THEMES.filter((t) => t.category === "classic").map((theme) => {
+                  const isActive = primaryDiary?.coverColor === theme.id;
+                  return (
+                    <div
+                      key={theme.id}
+                      className={`group rounded-2xl overflow-hidden bg-[#FAF6EE] border-2 transition-all duration-300 shadow-xs hover:shadow-lg p-4 flex flex-col justify-between ${
+                        isActive
+                          ? "border-[#B89360] ring-2 ring-[#B89360]/30 shadow-md"
+                          : "border-[#DDD0BC] hover:border-[#8E6945]"
+                      }`}
+                    >
+                      <div>
+                        {/* Leather texture block */}
+                        <div className={`h-24 rounded-xl ${theme.bgColor} border ${theme.borderColor} shadow-inner mb-3 relative overflow-hidden flex items-center justify-center`}>
+                          <div className="absolute inset-2 border border-dashed border-[#D8B97C]/30 rounded-lg pointer-events-none" />
+                          <div className="text-xs font-serif italic text-[#FAF5ED]/80 font-medium">
+                            {theme.name}
+                          </div>
+                        </div>
+                        <h4 className="font-serif text-sm font-medium text-[#261A13] mb-1">
+                          {theme.name}
+                        </h4>
+                        <p className="text-[11px] text-[#786657] font-light leading-relaxed mb-3">
+                          {theme.subtitle}
+                        </p>
+                      </div>
 
-                <div className="space-y-3.5 text-xs text-[#4A392B]">
-                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
-                    <span className="font-medium">Paper Texture Pattern</span>
-                    <span className="font-mono text-[#7B6959]">Vintage Ruled Lines</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
-                    <span className="font-medium">Handwriting Fluidity</span>
-                    <span className="font-mono text-[#7B6959]">Living Ink Enabled</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
-                    <span className="font-medium">Auto-Save Frequency</span>
-                    <span className="font-mono text-[#4A7352] font-semibold">Continuous (1.2s debounce)</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2">
-                    <span className="font-medium">Physical Page Flip Sound</span>
-                    <span className="font-mono text-[#7B6959]">Subtle Velvet</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Privacy & Account Isolation */}
-              <div className="p-6 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
-                <h3 className="font-serif text-lg text-[#261A13] font-medium mb-1">
-                  Private Cloud Vault
-                </h3>
-                <p className="text-xs text-[#736253] font-light mb-4">
-                  Multi-tenant isolation backed by Neon PostgreSQL.
-                </p>
-
-                <div className="space-y-3.5 text-xs text-[#4A392B]">
-                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
-                    <span className="font-medium">Database Isolation</span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E5EFE2] text-[#345938] font-mono text-[11px]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#4A7352]" />
-                      Tenant Encrypted
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
-                    <span className="font-medium">Active Volumes</span>
-                    <span className="font-mono text-[#7B6959]">{diaries.length} Bound</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[#E8DFC9]">
-                    <span className="font-medium">Total Entries Stored</span>
-                    <span className="font-mono text-[#7B6959]">{stats.totalEntries} Saved</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2">
-                    <span className="font-medium">Storage Region</span>
-                    <span className="font-mono text-[#7B6959]">Neon Serverless PG</span>
-                  </div>
-                </div>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCoverTheme(theme.id as DiaryCoverStyle)}
+                        disabled={isActive}
+                        className={`w-full py-2 px-3 rounded-xl text-xs font-serif font-medium transition-all shadow-2xs flex items-center justify-center gap-1.5 ${
+                          isActive
+                            ? "bg-[#EFE5D5] text-[#7C6958] cursor-default border border-[#DDD0BC]"
+                            : "bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] border border-[#483324] active:scale-98"
+                        }`}
+                      >
+                        {isActive ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-[#B89360]" />
+                            <span>Current Cover</span>
+                          </>
+                        ) : (
+                          <>
+                            <Palette className="w-3.5 h-3.5 text-[#E5C78B]" />
+                            <span>Apply Leather</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -188,10 +363,24 @@ export default function DashboardPage() {
       {/* Mobile Bottom Navigation Bar */}
       <MobileBottomNav />
 
+      {/* Theme Applied Toast Alert */}
+      {themeToast && (
+        <div className="fixed bottom-12 right-6 z-50 bg-[#342419] text-[#FAF5ED] px-4 py-3 rounded-xl shadow-xl border border-[#553E2D] flex items-center gap-2.5 text-xs font-serif animate-in slide-in-from-bottom-2 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-[#73A663]" />
+          <span>Cover updated to &ldquo;{themeToast}&rdquo;!</span>
+          <button
+            onClick={() => setThemeToast(null)}
+            className="ml-2 text-[#B8A695] hover:text-white"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Interactive Create New Diary Volume Modal */}
       {newDiaryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#261A13]/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-8 max-w-md w-full relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#261A13]/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-8 max-w-lg w-full relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setNewDiaryModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-[#887564] hover:bg-[#EFE5D5] transition-colors"
@@ -199,17 +388,17 @@ export default function DashboardPage() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EFE5D5] text-[#554030] text-xs font-mono uppercase tracking-wider mb-4 border border-[#DDD0BC]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EFE5D5] text-[#554030] text-xs font-mono uppercase tracking-wider mb-3 border border-[#DDD0BC]">
               <Sparkles className="w-3.5 h-3.5 text-[#B89360]" />
               <span>New Volume Setup</span>
             </div>
 
-            <h3 className="font-serif text-2xl text-[#261A13] font-normal mb-2">
+            <h3 className="font-serif text-2xl text-[#261A13] font-normal mb-1">
               Bind a New Journal
             </h3>
 
             <p className="text-xs text-[#665547] font-light leading-relaxed mb-5">
-              Give your journal a title and select a leather cover style for your shelf.
+              Give your journal a title and select an illustrated theme cover or classic leather for your shelf.
             </p>
 
             <form onSubmit={handleSubmitNewDiary} className="space-y-4">
@@ -230,27 +419,36 @@ export default function DashboardPage() {
 
               <div>
                 <label className="block text-xs font-serif text-[#4D3A2C] mb-2 font-medium">
-                  Leather Cover Style
+                  Choose Cover Art or Leather Style
                 </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { id: "burgundy", label: "Burgundy", bg: "bg-[#3D1E24]" },
-                    { id: "forest", label: "Forest", bg: "bg-[#25392B]" },
-                    { id: "navy", label: "Midnight", bg: "bg-[#1E2B3D]" },
-                    { id: "leather", label: "Classic Oak", bg: "bg-[#38261A]" },
-                  ].map((c) => (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {COVER_THEMES.map((c) => (
                     <button
                       type="button"
                       key={c.id}
-                      onClick={() => setNewDiaryCover(c.id as any)}
-                      className={`h-12 rounded-xl ${c.bg} border-2 flex flex-col items-center justify-center transition-all ${
+                      onClick={() => setNewDiaryCover(c.id as DiaryCoverStyle)}
+                      className={`relative rounded-xl overflow-hidden border-2 flex flex-col items-center justify-between text-left transition-all p-1.5 ${
                         newDiaryCover === c.id
-                          ? "border-[#E5C78B] ring-2 ring-[#8E6945]/40 scale-105"
-                          : "border-transparent opacity-80 hover:opacity-100"
+                          ? "border-[#8E6945] ring-2 ring-[#8E6945]/40 scale-102 bg-[#F2E8DA]"
+                          : "border-[#DDD0BC] hover:border-[#8E6945]/60 bg-[#F7F1E7]"
                       }`}
                     >
-                      <span className="text-[10px] text-[#FAF5ED] font-serif capitalize">
-                        {c.label}
+                      {c.imageUrl ? (
+                        <div className="w-full h-16 rounded-lg overflow-hidden relative mb-1.5 bg-[#241710]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={c.imageUrl}
+                            alt={c.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className={`w-full h-16 rounded-lg ${c.bgColor} border ${c.borderColor} mb-1.5 flex items-center justify-center`}>
+                          <span className="text-[10px] text-[#FAF5ED]/80 font-serif">Classic</span>
+                        </div>
+                      )}
+                      <span className="text-[11px] text-[#2C2016] font-serif font-medium line-clamp-1 w-full text-center">
+                        {c.name.replace(" Leather", "")}
                       </span>
                     </button>
                   ))}
@@ -274,6 +472,76 @@ export default function DashboardPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Diary Confirmation Modal */}
+      {diaryToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-7 max-w-sm w-full text-[#2C2016]">
+            <div className="w-10 h-10 rounded-xl bg-[#F8ECE8] border border-[#E8C5BE] flex items-center justify-center text-[#8B261E] mb-3">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <h3 className="font-serif text-xl font-medium mb-1.5 text-[#24160C]">
+              Delete Diary Volume?
+            </h3>
+            <p className="text-xs text-[#6B5A4B] font-light leading-relaxed mb-6">
+              Are you sure you want to delete &ldquo;{diaryToDelete.title}&rdquo;? All entries and pages bound inside this volume will be permanently deleted.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDiaryToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteDiary}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-[#8B261E] hover:bg-[#A83228] text-[#FAF5ED] text-xs font-medium transition-colors shadow-xs"
+              >
+                {isDeleting ? "Deleting..." : "Delete Volume"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Entry Confirmation Modal */}
+      {entryToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-7 max-w-sm w-full text-[#2C2016]">
+            <div className="w-10 h-10 rounded-xl bg-[#F8ECE8] border border-[#E8C5BE] flex items-center justify-center text-[#8B261E] mb-3">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <h3 className="font-serif text-xl font-medium mb-1.5 text-[#24160C]">
+              Tear Out Entry?
+            </h3>
+            <p className="text-xs text-[#6B5A4B] font-light leading-relaxed mb-6">
+              Are you sure you want to delete &ldquo;{entryToDelete.title}&rdquo;? This entry will be permanently removed from your journal.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setEntryToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteEntry}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-[#8B261E] hover:bg-[#A83228] text-[#FAF5ED] text-xs font-medium transition-colors shadow-xs"
+              >
+                {isDeleting ? "Deleting..." : "Delete Permanently"}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -7,7 +7,8 @@ import {
   BookOpen, 
   Calendar as CalendarIcon, 
   Search, 
-  Settings, 
+  Settings,
+  Palette, 
   Feather, 
   Home, 
   Sun, 
@@ -63,7 +64,7 @@ export function DashboardSidebar({
     { id: "diaries", label: "My Diaries", icon: BookOpen, href: "#diaries-section" },
     { id: "calendar", label: "Calendar", icon: CalendarIcon, href: "/calendar" },
     { id: "search", label: "Search", icon: Search, href: "/search" },
-    { id: "settings", label: "Settings", icon: Settings, href: "#settings-section" },
+    { id: "themes", label: "Cover Themes", icon: Palette, href: "#themes-section" },
   ];
 
   const handleNavClick = (id: string) => {

@@ -1,11 +1,21 @@
 export type MoodType = "Calm 🌿" | "Reflective ☕" | "Inspired ✨" | "Peaceful 🌙" | "Grateful 🌸";
 
+export type DiaryCoverStyle =
+  | "leather"
+  | "forest"
+  | "burgundy"
+  | "navy"
+  | "embossed-leather"
+  | "rain-forest"
+  | "writer-celestial"
+  | "creative-typewriter";
+
 export interface DiaryCardData {
   id: string;
   title: string;
   entriesCount: number;
   lastEntry: string;
-  coverColor: "leather" | "forest" | "burgundy" | "navy";
+  coverColor: DiaryCoverStyle;
   description?: string;
 }
 

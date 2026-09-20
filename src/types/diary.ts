@@ -13,4 +13,5 @@ export interface DiaryPageData {
   ink?: InkColor;
   paperStyle?: PaperStyle;
   isCover?: boolean;
+  entryId?: string;
 }
