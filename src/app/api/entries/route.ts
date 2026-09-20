@@ -132,7 +132,7 @@ export async function POST(req: Request) {
         mood,
         weather,
         isFavorite: Boolean(isFavorite),
-        date: date ? new Date(date) : new Date(),
+        date: date && !isNaN(new Date(date).getTime()) ? new Date(date) : new Date(),
       },
     });
 

@@ -64,7 +64,7 @@ export default function DashboardPage() {
   };
 
   const handleOpenEntry = (entryId: string) => {
-    window.location.href = "/diary/demo";
+    window.location.href = `/editor/demo?id=${encodeURIComponent(entryId)}`;
   };
 
   return (

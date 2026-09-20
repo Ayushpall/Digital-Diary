@@ -16,9 +16,9 @@ export default function DiaryDemoPage() {
     if (!isLoaded || !isSignedIn) return;
 
     fetch("/api/entries")
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (data.entries && data.entries.length > 0) {
+        if (data && data.entries && data.entries.length > 0) {
           const cover: DiaryPageData = {
             id: "user-diary-cover",
             pageNumber: 0,
@@ -34,6 +34,7 @@ export default function DiaryDemoPage() {
               pageNumber: index + 1,
               title: e.title,
               content: e.content,
+              blocks: e.blocks,
               date: d.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",

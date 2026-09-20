@@ -1,4 +1,5 @@
 import { InkColor, PaperStyle } from "./index";
+import { PageBlock } from "./creative";
 
 export interface DiaryPageData {
   id: string;
@@ -7,6 +8,7 @@ export interface DiaryPageData {
   dayOfWeek?: string;
   title?: string;
   content: string;
+  blocks?: PageBlock[];
   mood?: string;
   ink?: InkColor;
   paperStyle?: PaperStyle;

@@ -67,7 +67,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
         ...(body.mood !== undefined && { mood: body.mood }),
         ...(body.weather !== undefined && { weather: body.weather }),
         ...(body.isFavorite !== undefined && { isFavorite: body.isFavorite }),
-        ...(body.date !== undefined && { date: new Date(body.date) }),
+        ...(body.date !== undefined && !isNaN(new Date(body.date).getTime()) && { date: new Date(body.date) }),
       },
     });
 

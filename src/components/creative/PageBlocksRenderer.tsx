@@ -9,8 +9,9 @@ import { Trash2, Pin, Calendar, Sparkles } from "lucide-react";
 interface PageBlocksRendererProps {
   blocks: PageBlock[];
   mood?: DiaryMood;
-  title: string;
-  date: string;
+  title?: string;
+  date?: string;
+  showHeader?: boolean;
   styleId?: HandwritingStyleId;
   fontSize?: HandwritingFontSize;
   inkColor?: HandwritingInkColor;
@@ -21,8 +22,9 @@ interface PageBlocksRendererProps {
 export function PageBlocksRenderer({
   blocks,
   mood,
-  title,
-  date,
+  title = "",
+  date = "",
+  showHeader = true,
   styleId = "cursive",
   fontSize = "md",
   inkColor = "midnight",
@@ -33,31 +35,35 @@ export function PageBlocksRenderer({
 
   return (
     <div className="w-full flex flex-col gap-6 select-text">
-      {/* Page Header: Date & Mood Stamp */}
-      <div className="pb-3 border-b border-[#D8CABE]/50 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-xs font-serif italic text-[#847262]">
-          <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
-          <span>{date}</span>
-        </div>
+      {showHeader && (
+        <>
+          {/* Page Header: Date & Mood Stamp */}
+          <div className="pb-3 border-b border-[#D8CABE]/50 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs font-serif italic text-[#847262]">
+              <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
+              <span>{date}</span>
+            </div>
 
-        {/* Selected Mood Badge */}
-        {selectedMoodObj && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#EAE0CD] text-[#423023] border border-[#D5C5AC] text-xs font-medium shadow-2xs">
-            <span className="text-sm">{selectedMoodObj.emoji}</span>
-            <span>{selectedMoodObj.label}</span>
+            {/* Selected Mood Badge */}
+            {selectedMoodObj && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#EAE0CD] text-[#423023] border border-[#D5C5AC] text-xs font-medium shadow-2xs">
+                <span className="text-sm">{selectedMoodObj.emoji}</span>
+                <span>{selectedMoodObj.label}</span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Inscribed Page Title */}
-      {title ? (
-        <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1D15] tracking-tight font-normal italic">
-          {title}
-        </h2>
-      ) : (
-        <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1D15]/30 tracking-tight font-normal italic">
-          Untitled Memory
-        </h2>
+          {/* Inscribed Page Title */}
+          {title ? (
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1D15] tracking-tight font-normal italic">
+              {title}
+            </h2>
+          ) : (
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#2B1D15]/30 tracking-tight font-normal italic">
+              Untitled Memory
+            </h2>
+          )}
+        </>
       )}
 
       {/* Render All Dynamic Blocks in Sequence */}
@@ -97,6 +103,7 @@ export function PageBlocksRenderer({
 
                   {/* The Image */}
                   <div className="rounded overflow-hidden max-h-64 bg-[#F2ECE1]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={block.url}
                       alt={block.caption || "Journal keepsake"}
@@ -129,6 +136,7 @@ export function PageBlocksRenderer({
                   key={block.id}
                   className="relative group my-3 w-full max-w-sm mx-auto p-3 rounded-xl border border-dashed border-[#D5C5AC] bg-[#FAF5ED]/50"
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={block.dataUrl}
                     alt="Handwritten Sketch"

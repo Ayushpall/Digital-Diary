@@ -54,21 +54,21 @@ export function DiaryBook({ pages, initialOpen = true }: DiaryBookProps) {
   }, [isOpen, pageIndex]);
 
   // Mobile-specific next/prev (1 page increment)
-  const handleMobileNext = () => {
+  const handleMobileNext = useCallback(() => {
     if (pageIndex + 1 < totalPages) {
       setDirection("forward");
       setPageIndex((prev) => prev + 1);
     }
-  };
+  }, [pageIndex, totalPages]);
 
-  const handleMobilePrev = () => {
+  const handleMobilePrev = useCallback(() => {
     if (pageIndex > 0) {
       setDirection("backward");
       setPageIndex((prev) => prev - 1);
     } else {
       setIsOpen(false);
     }
-  };
+  }, [pageIndex]);
 
   // Touch swipe detection for flipping pages naturally on mobile devices
   const touchStartXRef = React.useRef<number | null>(null);
@@ -184,7 +184,11 @@ export function DiaryBook({ pages, initialOpen = true }: DiaryBookProps) {
       </div>
 
       {/* Main Physical Book Canvas */}
-      <div className="relative rounded-2xl p-3 sm:p-5 md:p-8 bg-[#332218] shadow-2xl border border-[#4D3627]">
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="relative rounded-2xl p-3 sm:p-5 md:p-8 bg-[#332218] shadow-2xl border border-[#4D3627]"
+      >
         {/* Embossed Corner Hardware Accents */}
         <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#BFA169]/60 rounded-tl-sm pointer-events-none" />
         <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#BFA169]/60 rounded-tr-sm pointer-events-none" />

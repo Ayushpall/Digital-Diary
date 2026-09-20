@@ -3,6 +3,7 @@
 import React from "react";
 import { DiaryPageData } from "@/types/diary";
 import { PageNumber } from "./PageNumber";
+import { PageBlocksRenderer } from "@/components/creative/PageBlocksRenderer";
 import { Calendar, Sparkles } from "lucide-react";
 
 interface DiaryPageProps {
@@ -73,6 +74,13 @@ export function DiaryPage({ page, position }: DiaryPageProps) {
         >
           {page.content}
         </div>
+
+        {/* Creative Keepsake Blocks (Photos, Sketches, Stickers) */}
+        {page.blocks && page.blocks.length > 0 && (
+          <div className="mt-4 pointer-events-auto">
+            <PageBlocksRenderer blocks={page.blocks} showHeader={false} interactive={false} />
+          </div>
+        )}
       </div>
 
       {/* Bottom Page Footer with Folio Stamp */}

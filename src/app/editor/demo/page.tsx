@@ -73,6 +73,7 @@ function EditorDemoContent() {
 
   // Track if this is the initial mount to prevent immediate blank overwrite
   const [hasInitialized, setHasInitialized] = useState(false);
+  const isSavingRef = React.useRef(false);
 
   // Load existing entry if id param is provided
   useEffect(() => {
@@ -125,6 +126,8 @@ function EditorDemoContent() {
     setSaveStatus("saving");
 
     const timer = setTimeout(async () => {
+      if (isSavingRef.current) return;
+      isSavingRef.current = true;
       try {
         if (isSignedIn) {
           const payload = {
@@ -170,6 +173,8 @@ function EditorDemoContent() {
       } catch (err) {
         console.error("Auto-save error:", err);
         setSaveStatus("idle");
+      } finally {
+        isSavingRef.current = false;
       }
     }, 1200);
 

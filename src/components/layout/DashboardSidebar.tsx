@@ -154,6 +154,7 @@ export function DashboardSidebar({
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs">
             <div className="flex items-center gap-2.5 overflow-hidden">
               {user.imageUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={user.imageUrl}
                   alt={user.fullName || "User profile"}
