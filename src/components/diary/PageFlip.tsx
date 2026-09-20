@@ -7,12 +7,14 @@ interface PageFlipProps {
   children: React.ReactNode;
   pageKey: string | number;
   direction?: "forward" | "backward";
+  origin?: "left" | "right" | "auto";
 }
 
 export function PageFlip({
   children,
   pageKey,
   direction = "forward",
+  origin = "auto",
 }: PageFlipProps) {
   const variants: Variants = {
     enter: (dir: "forward" | "backward") => ({
@@ -53,7 +55,14 @@ export function PageFlip({
           exit="exit"
           style={{
             transformStyle: "preserve-3d",
-            transformOrigin: direction === "forward" ? "left center" : "right center",
+            transformOrigin:
+              origin === "left"
+                ? "left center"
+                : origin === "right"
+                ? "right center"
+                : direction === "forward"
+                ? "left center"
+                : "right center",
           }}
           className="w-full h-full"
         >
