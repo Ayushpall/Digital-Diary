@@ -66,12 +66,10 @@ export function EditorToolbar({
               <button
                 key={size.id}
                 onClick={() => onUpdateSettings({ fontSize: size.id })}
-                aria-label={`Font size ${size.id}`}
-                className={`px-2 py-1 rounded-lg text-xs font-mono transition-all diary-focus active:scale-95 ${
-                  settings.fontSize === size.id
-                    ? "bg-[#38261A] text-[#FAF5ED] font-bold"
-                    : "text-[#635142] hover:bg-[#EFE5D5]"
-                }`}
+                className={`px-2 py-1 rounded-lg text-xs font-mono transition-colors ${settings.fontSize === size.id
+                  ? "bg-[#38261A] text-[#FAF5ED] font-bold"
+                  : "text-[#635142] hover:bg-[#EFE5D5]"
+                  }`}
                 title={`Font size: ${size.id}`}
               >
                 {size.label}
@@ -80,39 +78,33 @@ export function EditorToolbar({
           </div>
 
           {/* Text Alignment */}
-          <div className="flex items-center bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs" role="group" aria-label="Text alignment">
+          <div className="flex items-center bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs">
             <button
               onClick={() => onUpdateSettings({ textAlign: "left" })}
-              aria-label="Align text left"
-              className={`p-1.5 rounded-lg transition-all diary-focus active:scale-95 ${
-                settings.textAlign === "left"
-                  ? "bg-[#38261A] text-[#FAF5ED]"
-                  : "text-[#635142] hover:bg-[#EFE5D5]"
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${settings.textAlign === "left"
+                ? "bg-[#38261A] text-[#FAF5ED]"
+                : "text-[#635142] hover:bg-[#EFE5D5]"
+                }`}
               title="Align Left"
             >
               <AlignLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => onUpdateSettings({ textAlign: "center" })}
-              aria-label="Align text center"
-              className={`p-1.5 rounded-lg transition-all diary-focus active:scale-95 ${
-                settings.textAlign === "center"
-                  ? "bg-[#38261A] text-[#FAF5ED]"
-                  : "text-[#635142] hover:bg-[#EFE5D5]"
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${settings.textAlign === "center"
+                ? "bg-[#38261A] text-[#FAF5ED]"
+                : "text-[#635142] hover:bg-[#EFE5D5]"
+                }`}
               title="Align Center"
             >
               <AlignCenter className="w-4 h-4" />
             </button>
             <button
               onClick={() => onUpdateSettings({ textAlign: "right" })}
-              aria-label="Align text right"
-              className={`p-1.5 rounded-lg transition-all diary-focus active:scale-95 ${
-                settings.textAlign === "right"
-                  ? "bg-[#38261A] text-[#FAF5ED]"
-                  : "text-[#635142] hover:bg-[#EFE5D5]"
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${settings.textAlign === "right"
+                ? "bg-[#38261A] text-[#FAF5ED]"
+                : "text-[#635142] hover:bg-[#EFE5D5]"
+                }`}
               title="Align Right"
             >
               <AlignRight className="w-4 h-4" />
@@ -120,39 +112,33 @@ export function EditorToolbar({
           </div>
 
           {/* Formatting: Bold, Italic, Underline */}
-          <div className="flex items-center bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs" role="group" aria-label="Text styling">
+          <div className="flex items-center bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs">
             <button
               onClick={() => onUpdateSettings({ isBold: !settings.isBold })}
-              aria-label={settings.isBold ? "Disable Bold" : "Enable Bold"}
-              className={`p-1.5 rounded-lg transition-all diary-focus active:scale-95 ${
-                settings.isBold
-                  ? "bg-[#38261A] text-[#FAF5ED]"
-                  : "text-[#635142] hover:bg-[#EFE5D5]"
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${settings.isBold
+                ? "bg-[#38261A] text-[#FAF5ED]"
+                : "text-[#635142] hover:bg-[#EFE5D5]"
+                }`}
               title="Bold"
             >
               <Bold className="w-4 h-4" />
             </button>
             <button
               onClick={() => onUpdateSettings({ isItalic: !settings.isItalic })}
-              aria-label={settings.isItalic ? "Disable Italic" : "Enable Italic"}
-              className={`p-1.5 rounded-lg transition-all diary-focus active:scale-95 ${
-                settings.isItalic
-                  ? "bg-[#38261A] text-[#FAF5ED]"
-                  : "text-[#635142] hover:bg-[#EFE5D5]"
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${settings.isItalic
+                ? "bg-[#38261A] text-[#FAF5ED]"
+                : "text-[#635142] hover:bg-[#EFE5D5]"
+                }`}
               title="Italic"
             >
               <Italic className="w-4 h-4" />
             </button>
             <button
               onClick={() => onUpdateSettings({ isUnderline: !settings.isUnderline })}
-              aria-label={settings.isUnderline ? "Disable Underline" : "Enable Underline"}
-              className={`p-1.5 rounded-lg transition-all diary-focus active:scale-95 ${
-                settings.isUnderline
-                  ? "bg-[#38261A] text-[#FAF5ED]"
-                  : "text-[#635142] hover:bg-[#EFE5D5]"
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${settings.isUnderline
+                ? "bg-[#38261A] text-[#FAF5ED]"
+                : "text-[#635142] hover:bg-[#EFE5D5]"
+                }`}
               title="Underline"
             >
               <Underline className="w-4 h-4" />
@@ -163,7 +149,7 @@ export function EditorToolbar({
         {/* Right Toolbar Cluster: Autosave status & Save Button */}
         <div className="flex items-center gap-3 ml-auto">
           {/* Simulated Autosave Status */}
-          <div className="flex items-center gap-1.5 text-xs font-serif italic text-[#7C6958]" aria-live="polite">
+          <div className="flex items-center gap-1.5 text-xs font-serif italic text-[#7C6958]">
             {saveStatus === "saving" ? (
               <>
                 <span className="w-2 h-2 rounded-full bg-[#D4A137] animate-pulse" />
@@ -180,8 +166,7 @@ export function EditorToolbar({
           {/* Save Action Button */}
           <button
             onClick={onSave}
-            aria-label="Save diary entry"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#342419] hover:bg-[#483424] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all diary-focus"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#342419] hover:bg-[#483424] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
           >
             <Save className="w-3.5 h-3.5 text-[#E5C78B]" />
             <span>Save Entry</span>
