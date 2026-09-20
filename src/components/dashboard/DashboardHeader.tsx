@@ -12,12 +12,34 @@ export function DashboardHeader({
   onOpenMobileMenu,
   onNewEntryClick,
 }: DashboardHeaderProps) {
-  // Format current date nicely
-  const todayStr = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  }).format(new Date());
+  const [greeting, setGreeting] = React.useState("Good morning");
+  const [todayStr, setTodayStr] = React.useState(() => {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    }).format(new Date());
+  });
+
+  React.useEffect(() => {
+    const now = new Date();
+    setTodayStr(
+      new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }).format(now)
+    );
+
+    const hour = now.getHours();
+    if (hour >= 4 && hour < 12) {
+      setGreeting("Good morning");
+    } else if (hour >= 12 && hour < 17) {
+      setGreeting("Good afternoon");
+    } else {
+      setGreeting("Good evening");
+    }
+  }, []);
 
   return (
     <header className="pb-8 pt-6 sm:pt-8 border-b border-[#DECDB8] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -34,12 +56,12 @@ export function DashboardHeader({
         )}
 
         <div>
-          <div className="flex items-center gap-2 text-xs font-serif italic text-[#887463] mb-1">
+          <div className="flex items-center gap-2 text-xs font-serif italic text-[#887463] mb-1" suppressHydrationWarning>
             <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
             <span>{todayStr}</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[#261A13] tracking-tight font-normal">
-            Good evening 👋
+          <h1 className="font-serif text-3xl sm:text-4xl text-[#261A13] tracking-tight font-normal" suppressHydrationWarning>
+            {greeting} 👋
           </h1>
           <p className="mt-1 text-sm sm:text-base text-[#685749] font-light">
             Ready to write something today?
