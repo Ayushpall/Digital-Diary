@@ -12,6 +12,8 @@ import { ImageUploader } from "@/components/creative/ImageUploader";
 import { StickerPicker } from "@/components/creative/StickerPicker";
 import { MoodSelector } from "@/components/creative/MoodSelector";
 import { PageBlocksRenderer } from "@/components/creative/PageBlocksRenderer";
+import { PageFlip } from "@/components/diary/PageFlip";
+import { paginateContent } from "@/lib/pagination";
 import { 
   ArrowLeft, 
   Calendar, 
@@ -25,7 +27,10 @@ import {
   Smile,
   Sparkles,
   Palette,
-  FileText
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen
 } from "lucide-react";
 
 import { useSearchParams } from "next/navigation";
@@ -268,14 +273,36 @@ function EditorDemoContent() {
     setBlocks((prev) => prev.filter((b) => b.id !== blockId));
   };
 
-  // Compile full page blocks list: primary text block + appended creative blocks
-  const allPageBlocks: PageBlock[] = [
+  // Pagination & Auto-flip states (500 characters per leaf)
+  const [previewPageIndex, setPreviewPageIndex] = useState(0);
+  const [previewFlipDirection, setPreviewFlipDirection] = useState<"forward" | "backward">("forward");
+  const prevPageCountRef = React.useRef(1);
+
+  // Split content at 500 characters so each page flips cleanly
+  const contentPages = React.useMemo(() => paginateContent(content, 500), [content]);
+
+  // When text crosses 500 characters, automatically flip forward to the new page!
+  useEffect(() => {
+    const newPageCount = contentPages.length;
+    if (newPageCount > prevPageCountRef.current) {
+      setPreviewFlipDirection("forward");
+      setPreviewPageIndex(newPageCount - 1);
+    } else if (newPageCount < prevPageCountRef.current && previewPageIndex >= newPageCount) {
+      setPreviewFlipDirection("backward");
+      setPreviewPageIndex(Math.max(0, newPageCount - 1));
+    }
+    prevPageCountRef.current = newPageCount;
+  }, [contentPages.length, previewPageIndex]);
+
+  // Active page text & blocks for preview
+  const activePageText = contentPages[previewPageIndex] || "";
+  const activePageBlocks: PageBlock[] = [
     {
-      id: "main-content-text",
+      id: `main-content-text-p${previewPageIndex}`,
       type: "text",
-      content: content,
+      content: activePageText,
     },
-    ...blocks,
+    ...(previewPageIndex === 0 ? blocks : []),
   ];
 
   return (
@@ -444,6 +471,11 @@ function EditorDemoContent() {
                   onTitleChange={setTitle}
                   content={content}
                   onContentChange={setContent}
+                  activePageIndex={previewPageIndex}
+                  onSelectPage={(idx) => {
+                    setPreviewFlipDirection(idx > previewPageIndex ? "forward" : "backward");
+                    setPreviewPageIndex(idx);
+                  }}
                 />
               )}
 
@@ -470,39 +502,101 @@ function EditorDemoContent() {
             </div>
           </div>
 
-          {/* RIGHT PANEL: Live Composite Page Preview (Text, Images, Sketches, Stickers) */}
+          {/* RIGHT PANEL: Live Composite Page Preview with 3D PageFlip (500 chars/leaf) */}
           <div
-            className={`w-full md:w-1/2 h-full flex-col bg-[#FAF6ED] p-6 sm:p-8 md:p-10 paper-pattern-lined right-page-spine relative overflow-y-auto ${
+            className={`w-full md:w-1/2 h-full flex-col bg-[#FAF6ED] p-4 sm:p-6 md:p-8 paper-pattern-lined right-page-spine relative overflow-y-auto ${
               activeMobileView === "preview" ? "flex" : "hidden md:flex"
             }`}
           >
             {/* Red vertical margin line on left */}
-            <div className="absolute top-0 bottom-0 left-10 sm:left-12 w-[1.5px] bg-[#E59388]/35 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 left-8 sm:left-10 w-[1.5px] bg-[#E59388]/35 pointer-events-none" />
 
+            {/* Top Page Navigation Bar */}
+            <div className="relative z-20 flex items-center justify-between pb-3 border-b border-[#E0D3C0] mb-4 text-xs font-serif text-[#6C594A]">
+              <div className="flex items-center gap-2 pl-6 sm:pl-8">
+                <BookOpen className="w-3.5 h-3.5 text-[#B89360]" />
+                <span className="font-medium text-[#38261A]">Living Ink Leaf</span>
+                {contentPages.length > 1 && (
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#EAE0CF] text-[#554030] border border-[#D5C5AC]">
+                    {contentPages.length} Pages • Auto-flipping active
+                  </span>
+                )}
+              </div>
+
+              {/* Interactive Page Flip Controls */}
+              {contentPages.length > 1 && (
+                <div className="flex items-center gap-1 bg-[#EFE5D5] px-2 py-0.5 rounded-xl border border-[#D5C5AC] shadow-2xs">
+                  <button
+                    onClick={() => {
+                      if (previewPageIndex > 0) {
+                        setPreviewFlipDirection("backward");
+                        setPreviewPageIndex(previewPageIndex - 1);
+                      }
+                    }}
+                    disabled={previewPageIndex === 0}
+                    className="p-1 rounded hover:bg-[#E2D5BF] disabled:opacity-30 transition-colors"
+                    title="Previous page"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="font-mono text-[11px] font-medium text-[#38261A] px-1">
+                    Page {previewPageIndex + 1} of {contentPages.length}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (previewPageIndex < contentPages.length - 1) {
+                        setPreviewFlipDirection("forward");
+                        setPreviewPageIndex(previewPageIndex + 1);
+                      }
+                    }}
+                    disabled={previewPageIndex >= contentPages.length - 1}
+                    className="p-1 rounded hover:bg-[#E2D5BF] disabled:opacity-30 transition-colors"
+                    title="Next page"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 3D Realistic Page-Flip Container */}
             <div className="relative z-10 pl-6 sm:pl-8 flex-1 flex flex-col justify-between">
-              {/* Dynamic Composite Blocks Renderer */}
-              <PageBlocksRenderer
-                blocks={allPageBlocks}
-                mood={mood}
-                title={title}
-                date={date}
-                styleId={
-                  settings.font === "caveat"
-                    ? "cursive"
-                    : settings.font === "kalam"
-                    ? "classic"
-                    : settings.font
-                }
-                fontSize={settings.fontSize}
-                inkColor={settings.inkColor}
-                onRemoveBlock={handleRemoveBlock}
-                interactive={true}
-              />
+              <PageFlip
+                pageKey={`editor-page-${previewPageIndex}`}
+                direction={previewFlipDirection}
+              >
+                <div className="w-full flex flex-col justify-between min-h-[460px]">
+                  <PageBlocksRenderer
+                    blocks={activePageBlocks}
+                    mood={previewPageIndex === 0 ? mood : undefined}
+                    title={previewPageIndex === 0 ? title : `${title || "Story"} (cont.)`}
+                    date={date}
+                    showHeader={true}
+                    styleId={
+                      settings.font === "caveat"
+                        ? "cursive"
+                        : settings.font === "kalam"
+                        ? "classic"
+                        : settings.font
+                    }
+                    fontSize={settings.fontSize}
+                    inkColor={settings.inkColor}
+                    onRemoveBlock={handleRemoveBlock}
+                    interactive={true}
+                  />
+                </div>
+              </PageFlip>
 
-              {/* Bottom Page Footer */}
-              <div className="pt-6 border-t border-[#E8DEC9] mt-8 flex items-center justify-between text-xs text-[#8C7A6B] font-serif italic">
-                <span>Page preview with living ink & attached keepsakes</span>
-                <span className="font-mono text-[11px]">Vol. I • Page 25</span>
+              {/* Bottom Page Footer with Folio Stamp */}
+              <div className="pt-4 border-t border-[#E8DEC9] mt-6 flex items-center justify-between text-xs text-[#8C7A6B] font-serif italic">
+                <span>
+                  {contentPages.length > 1
+                    ? `Page ${previewPageIndex + 1} of ${contentPages.length}`
+                    : "Single page draft"}
+                </span>
+                <span className="font-mono text-[11px] text-[#4A3728]">
+                  {activePageText.length} / 500 chars on this leaf
+                </span>
               </div>
             </div>
           </div>

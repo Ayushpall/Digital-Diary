@@ -6,11 +6,29 @@ import { useAuth } from "@clerk/nextjs";
 import { DiaryBook } from "@/components/diary/DiaryBook";
 import { sampleDiaryPages } from "@/lib/diary-data";
 import { DiaryPageData } from "@/types/diary";
+import { paginateContent } from "@/lib/pagination";
 import { Feather, ArrowLeft, Sparkles, Home } from "lucide-react";
 
 export default function DiaryDemoPage() {
   const { isSignedIn, isLoaded } = useAuth();
-  const [pages, setPages] = useState<DiaryPageData[]>(sampleDiaryPages);
+  const [pages, setPages] = useState<DiaryPageData[]>(() => {
+    // Paginate sample demo pages as well so demo text never overflows
+    const paginatedSample: DiaryPageData[] = [];
+    let pNum = 1;
+    sampleDiaryPages.forEach((p) => {
+      const chunks = paginateContent(p.content, 500);
+      chunks.forEach((chunk, cIdx) => {
+        paginatedSample.push({
+          ...p,
+          id: `${p.id}-chunk-${cIdx}`,
+          pageNumber: pNum++,
+          title: cIdx === 0 ? p.title : `${p.title} (cont.)`,
+          content: chunk,
+        });
+      });
+    });
+    return paginatedSample;
+  });
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
@@ -27,24 +45,35 @@ export default function DiaryDemoPage() {
             content: "",
           };
 
-          const realPages: DiaryPageData[] = data.entries.map((e: any, index: number) => {
+          const realPages: DiaryPageData[] = [];
+          let currentFolioNumber = 1;
+
+          data.entries.forEach((e: any) => {
             const d = new Date(e.date);
-            return {
-              id: e.id,
-              pageNumber: index + 1,
-              title: e.title,
-              content: e.content,
-              blocks: e.blocks,
-              date: d.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              }),
-              dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
-              mood: e.mood,
-              ink: "midnight",
-              paperStyle: "lined",
-            };
+            const dateFormatted = d.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            });
+            const dayOfWeek = d.toLocaleDateString("en-US", { weekday: "long" });
+
+            // Automatically split entry when full at 500 characters so each page flips cleanly
+            const chunks = paginateContent(e.content || "", 500);
+
+            chunks.forEach((chunk, chunkIndex) => {
+              realPages.push({
+                id: `${e.id}-p${chunkIndex + 1}`,
+                pageNumber: currentFolioNumber++,
+                title: chunkIndex === 0 ? e.title : `${e.title} (cont.)`,
+                content: chunk,
+                blocks: chunkIndex === 0 ? e.blocks : undefined,
+                date: dateFormatted,
+                dayOfWeek: dayOfWeek,
+                mood: chunkIndex === 0 ? e.mood : undefined,
+                ink: "midnight",
+                paperStyle: "lined",
+              });
+            });
           });
 
           setPages([cover, ...realPages]);
