@@ -1,6 +1,12 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 
-export default clerkMiddleware();
+export default clerkMiddleware(
+  () => {
+    // Intentionally empty.
+    // debug:true will tell us whether Clerk middleware actually runs.
+  },
+  { debug: true }
+);
 
 export const config = {
   matcher: [
