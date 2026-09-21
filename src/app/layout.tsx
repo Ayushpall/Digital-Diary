@@ -50,27 +50,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_cmVsYXRlZC1mZXJyZXQtNTg4Ni5jbGVyay5hY2NvdW50cy5kZXYk"}
-      appearance={{
-        variables: {
-          colorPrimary: "#32231A",
-          colorText: "#2C2621",
-          colorBackground: "#FAF6EE",
-          colorInputBackground: "#FFFFFF",
-          colorInputText: "#2C2621",
-          borderRadius: "0.75rem",
-        },
-      }}
+    <html
+      lang="en"
+      className={`${newsreader.variable} ${caveat.variable} ${kalam.variable} ${patrickHand.variable} ${inter.variable} scroll-smooth`}
     >
-      <html
-        lang="en"
-        className={`${newsreader.variable} ${caveat.variable} ${kalam.variable} ${patrickHand.variable} ${inter.variable} scroll-smooth`}
-      >
-        <body className="min-h-screen bg-[#F8F4EC] text-[#2C2621] antialiased selection:bg-[#E2D4BF] selection:text-[#1A2536]">
+      <body className="min-h-screen bg-[#F8F4EC] text-[#2C2621] antialiased selection:bg-[#E2D4BF] selection:text-[#1A2536]">
+        <ClerkProvider
+          appearance={{
+            variables: {
+              colorPrimary: "#32231A",
+              colorText: "#2C2621",
+              colorBackground: "#FAF6EE",
+              colorInputBackground: "#FFFFFF",
+              colorInputText: "#2C2621",
+              borderRadius: "0.75rem",
+            },
+          }}
+        >
           {children}
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
