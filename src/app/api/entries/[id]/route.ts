@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthenticatedUser } from "@/lib/auth-user";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -11,17 +11,19 @@ interface RouteParams {
 // GET /api/entries/[id] - Fetch single entry
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { id } = await params;
+
     const entry = await prisma.entry.findFirst({
       where: { id, userId },
       include: {
         diary: {
-          select: { title: true, coverColor: true, paperStyle: true },
+          select: { id: true, title: true, coverColor: true, paperStyle: true },
         },
       },
     });
@@ -30,7 +32,27 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ status: "ok", entry });
+    return NextResponse.json({
+      status: "ok",
+      entry: {
+        id: entry.id,
+        diaryId: entry.diaryId,
+        diaryTitle: entry.diary.title,
+        coverColor: entry.diary.coverColor,
+        paperStyle: entry.diary.paperStyle,
+        title: entry.title,
+        content: entry.content,
+        blocks: entry.blocks,
+        handwritingFont: entry.handwritingFont,
+        inkColor: entry.inkColor,
+        date: entry.date.toISOString(),
+        mood: entry.mood,
+        weather: entry.weather,
+        isFavorite: entry.isFavorite,
+        createdAt: entry.createdAt,
+        updatedAt: entry.updatedAt,
+      },
+    });
   } catch (error) {
     console.error("Error fetching entry:", error);
     return NextResponse.json({ error: "Failed to fetch entry" }, { status: 500 });
@@ -40,11 +62,12 @@ export async function GET(req: Request, { params }: RouteParams) {
 // PUT /api/entries/[id] - Update entry
 export async function PUT(req: Request, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { id } = await params;
     const body = await req.json();
 
@@ -56,22 +79,60 @@ export async function PUT(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Entry not found" }, { status: 404 });
     }
 
+    let parsedDate: Date | undefined = undefined;
+    if (body.date !== undefined && body.date !== null) {
+      const candidate = new Date(body.date);
+      if (!isNaN(candidate.getTime())) {
+        parsedDate = candidate;
+      }
+    }
+
     const updated = await prisma.entry.update({
       where: { id },
       data: {
-        ...(body.title !== undefined && { title: body.title.trim() }),
-        ...(body.content !== undefined && { content: body.content }),
-        ...(body.blocks !== undefined && { blocks: body.blocks }),
-        ...(body.handwritingFont !== undefined && { handwritingFont: body.handwritingFont }),
-        ...(body.inkColor !== undefined && { inkColor: body.inkColor }),
-        ...(body.mood !== undefined && { mood: body.mood }),
-        ...(body.weather !== undefined && { weather: body.weather }),
-        ...(body.isFavorite !== undefined && { isFavorite: body.isFavorite }),
-        ...(body.date !== undefined && !isNaN(new Date(body.date).getTime()) && { date: new Date(body.date) }),
+        ...(body.title !== undefined && typeof body.title === "string" ? { title: body.title.trim() } : {}),
+        ...(body.content !== undefined && typeof body.content === "string" ? { content: body.content } : {}),
+        ...(body.blocks !== undefined ? { blocks: body.blocks } : {}),
+        ...(body.handwritingFont !== undefined ? { handwritingFont: body.handwritingFont } : {}),
+        ...(body.inkColor !== undefined ? { inkColor: body.inkColor } : {}),
+        ...(body.mood !== undefined ? { mood: body.mood } : {}),
+        ...(body.weather !== undefined ? { weather: body.weather } : {}),
+        ...(body.isFavorite !== undefined ? { isFavorite: Boolean(body.isFavorite) } : {}),
+        ...(parsedDate !== undefined ? { date: parsedDate } : {}),
+      },
+      include: {
+        diary: {
+          select: { title: true, coverColor: true },
+        },
       },
     });
 
-    return NextResponse.json({ status: "ok", entry: updated });
+    // Touch the diary's updatedAt timestamp
+    await prisma.diary.update({
+      where: { id: existing.diaryId },
+      data: { updatedAt: new Date() },
+    });
+
+    return NextResponse.json({
+      status: "ok",
+      entry: {
+        id: updated.id,
+        diaryId: updated.diaryId,
+        diaryTitle: updated.diary.title,
+        coverColor: updated.diary.coverColor,
+        title: updated.title,
+        content: updated.content,
+        blocks: updated.blocks,
+        handwritingFont: updated.handwritingFont,
+        inkColor: updated.inkColor,
+        date: updated.date.toISOString(),
+        mood: updated.mood,
+        weather: updated.weather,
+        isFavorite: updated.isFavorite,
+        createdAt: updated.createdAt,
+        updatedAt: updated.updatedAt,
+      },
+    });
   } catch (error) {
     console.error("Error updating entry:", error);
     return NextResponse.json({ error: "Failed to update entry" }, { status: 500 });
@@ -81,12 +142,14 @@ export async function PUT(req: Request, { params }: RouteParams) {
 // DELETE /api/entries/[id] - Delete entry
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { id } = await params;
+
     const existing = await prisma.entry.findFirst({
       where: { id, userId },
     });
@@ -97,6 +160,12 @@ export async function DELETE(req: Request, { params }: RouteParams) {
 
     await prisma.entry.delete({
       where: { id },
+    });
+
+    // Touch the diary's updatedAt timestamp
+    await prisma.diary.update({
+      where: { id: existing.diaryId },
+      data: { updatedAt: new Date() },
     });
 
     return NextResponse.json({ status: "ok", message: "Entry deleted successfully" });

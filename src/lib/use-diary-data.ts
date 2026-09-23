@@ -7,7 +7,28 @@ import {
   mockRecentEntries,
   mockDiaryStats,
 } from "@/lib/mock-data";
-import { DiaryCardData, RecentEntryData, DiaryStatsData } from "@/types/dashboard";
+import { DiaryCardData, RecentEntryData, DiaryStatsData, MoodType } from "@/types/dashboard";
+
+export const DIARY_DATA_CHANGED_EVENT = "diary-data-changed";
+
+export function notifyDiaryDataChanged() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(DIARY_DATA_CHANGED_EVENT));
+  }
+}
+
+function formatMoodLabel(mood: string | null | undefined): MoodType {
+  if (!mood) return "Reflective ☕";
+  const m = mood.toLowerCase();
+  if (m.includes("calm") || m === "calm") return "Calm 🌿";
+  if (m.includes("reflect") || m === "reflective") return "Reflective ☕";
+  if (m.includes("inspir") || m === "inspired") return "Inspired ✨";
+  if (m.includes("peace") || m === "peaceful") return "Peaceful 🌙";
+  if (m.includes("grate") || m === "grateful") return "Grateful 🌸";
+  if (m.includes("happy") || m === "happy") return "Inspired ✨";
+  if (m.includes("sad") || m === "melancholy") return "Reflective ☕";
+  return "Reflective ☕";
+}
 
 export function useDiaryData() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -30,7 +51,6 @@ export function useDiaryData() {
       return;
     }
 
-    setLoading(true);
     try {
       const [diariesRes, entriesRes, statsRes] = await Promise.all([
         fetch("/api/diaries"),
@@ -40,12 +60,12 @@ export function useDiaryData() {
 
       if (diariesRes.ok) {
         const data = await diariesRes.json();
-        if (data.diaries && data.diaries.length > 0) {
+        if (data.diaries && Array.isArray(data.diaries)) {
           setDiaries(
             data.diaries.map((d: any) => ({
               id: d.id,
               title: d.title,
-              entriesCount: d.pageCount ?? (d.entries ? d.entries.length : 0),
+              entriesCount: d.pageCount ?? 0,
               lastEntry: new Date(d.updatedAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -55,14 +75,13 @@ export function useDiaryData() {
             }))
           );
         } else {
-          // Fresh tenant with 0 diaries: display clean fresh dashboard
           setDiaries([]);
         }
       }
 
       if (entriesRes.ok) {
         const data = await entriesRes.json();
-        if (data.entries && data.entries.length > 0) {
+        if (data.entries && Array.isArray(data.entries)) {
           setRecentEntries(
             data.entries.slice(0, 5).map((e: any) => {
               const d = new Date(e.date);
@@ -76,7 +95,7 @@ export function useDiaryData() {
                 dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
                 title: e.title,
                 preview: e.content.slice(0, 120) + (e.content.length > 120 ? "..." : ""),
-                mood: (e.mood as any) || "Reflective ☕",
+                mood: formatMoodLabel(e.mood),
                 diaryName: e.diaryTitle || "My Journal",
               };
             })
@@ -90,10 +109,10 @@ export function useDiaryData() {
         const data = await statsRes.json();
         if (data.stats) {
           setStats({
-            totalEntries: data.stats.totalPages || 0,
-            streakDays: data.stats.streakDays || 0,
-            pagesWritten: data.stats.totalPages || 0,
-            wordsWritten: (data.stats.totalPages || 0) * 140,
+            totalEntries: data.stats.totalEntries ?? data.stats.totalPages ?? 0,
+            streakDays: data.stats.streakDays ?? 0,
+            pagesWritten: data.stats.pagesWritten ?? data.stats.totalPages ?? 0,
+            wordsWritten: data.stats.wordsWritten ?? ((data.stats.totalEntries ?? 0) * 140),
           });
         }
       }
@@ -110,9 +129,25 @@ export function useDiaryData() {
     }
   }, [isLoaded, fetchData]);
 
-  const createDiary = async (title: string, coverColor = "burgundy", description = "") => {
+  // Listen to global changes across components and window focus
+  useEffect(() => {
+    if (!isSignedIn) return;
+
+    const handleDataChange = () => {
+      fetchData();
+    };
+
+    window.addEventListener(DIARY_DATA_CHANGED_EVENT, handleDataChange);
+    window.addEventListener("focus", handleDataChange);
+
+    return () => {
+      window.removeEventListener(DIARY_DATA_CHANGED_EVENT, handleDataChange);
+      window.removeEventListener("focus", handleDataChange);
+    };
+  }, [isSignedIn, fetchData]);
+
+  const createDiary = async (title: string, coverColor = "embossed-leather", description = "") => {
     if (!isSignedIn) {
-      // In demo mode, update local state
       const newD: DiaryCardData = {
         id: `diary-${Date.now()}`,
         title,
@@ -132,7 +167,13 @@ export function useDiaryData() {
     });
 
     if (res.ok) {
-      fetchData();
+      const data = await res.json();
+      await fetchData();
+      notifyDiaryDataChanged();
+      return data.diary;
+    } else {
+      const errorData = await res.json().catch(() => ({ error: "Failed to create diary" }));
+      throw new Error(errorData.error || "Failed to create diary");
     }
   };
 
@@ -148,6 +189,7 @@ export function useDiaryData() {
       });
       if (res.ok) {
         await fetchData();
+        notifyDiaryDataChanged();
         return true;
       }
     } catch (err) {
@@ -168,6 +210,7 @@ export function useDiaryData() {
       });
       if (res.ok) {
         await fetchData();
+        notifyDiaryDataChanged();
         return true;
       }
     } catch (err) {
@@ -192,6 +235,7 @@ export function useDiaryData() {
       });
       if (res.ok) {
         await fetchData();
+        notifyDiaryDataChanged();
         return true;
       }
     } catch (err) {

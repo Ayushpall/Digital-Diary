@@ -13,31 +13,52 @@ import {
   PenTool, 
   FileText,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layers
 } from "lucide-react";
 
 interface CalendarEntryProps {
   entry?: CalendarEntryData | null;
+  entries?: CalendarEntryData[] | null;
   selectedDateStr: string;
+  selectedDateKey?: string;
 }
 
 export function CalendarEntry({
   entry,
+  entries,
   selectedDateStr,
+  selectedDateKey,
 }: CalendarEntryProps) {
   const [leafIndex, setLeafIndex] = useState(0);
   const [flipDirection, setFlipDirection] = useState<"forward" | "backward">("forward");
+  const [selectedEntryIndex, setSelectedEntryIndex] = useState(0);
 
-  // Reset to first page when the selected entry or date changes
+  // Normalize entries list
+  const entriesList = useMemo(() => {
+    if (entries && entries.length > 0) return entries;
+    if (entry) return [entry];
+    return [];
+  }, [entries, entry]);
+
+  const activeEntry = entriesList[selectedEntryIndex] || entriesList[0] || null;
+
+  // Reset page and entry selection when date changes
   useEffect(() => {
     setLeafIndex(0);
-  }, [entry?.id, selectedDateStr]);
+    setSelectedEntryIndex(0);
+  }, [selectedDateStr, selectedDateKey]);
+
+  // Reset leaf index when switching between entries on the same date
+  useEffect(() => {
+    setLeafIndex(0);
+  }, [selectedEntryIndex]);
 
   // Paginate content to ~380 characters per leaf so the journal page remains compact and short
   const leaves = useMemo(() => {
-    if (!entry || !entry.content) return [""];
-    return paginateContent(entry.content, 380);
-  }, [entry]);
+    if (!activeEntry || !activeEntry.content) return [""];
+    return paginateContent(activeEntry.content, 380);
+  }, [activeEntry]);
 
   const totalLeaves = leaves.length;
   const currentLeafText = leaves[leafIndex] || "";
@@ -77,7 +98,8 @@ export function CalendarEntry({
   }, [handleNextLeaf, handlePrevLeaf]);
 
   // Blank leaf when no entry exists for this date
-  if (!entry) {
+  if (!activeEntry) {
+    const targetDateForEditor = selectedDateKey || selectedDateStr;
     return (
       <div className="h-[560px] sm:h-[580px] rounded-2xl p-6 sm:p-8 paper-pattern-lined border-l-4 border-l-[#5E3C22] border border-[#D5C6AC] shadow-xl bg-[#FAF6ED] flex flex-col justify-between relative select-text overflow-hidden">
         {/* Left red margin line */}
@@ -106,7 +128,7 @@ export function CalendarEntry({
             This page in your journal is currently unwritten. Pen your thoughts or memories for this date anytime.
           </p>
           <Link
-            href={`/editor/demo?new=true&date=${selectedDateStr}`}
+            href={`/editor/demo?new=true&date=${encodeURIComponent(targetDateForEditor)}`}
             className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[42px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs transition-all active:scale-95"
           >
             <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />
@@ -133,12 +155,39 @@ export function CalendarEntry({
       {/* Brass corner accent on top right */}
       <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#BFA169]/70 rounded-tr-sm pointer-events-none z-20" />
 
+      {/* Multiple reflections switcher bar if date has >1 entries */}
+      {entriesList.length > 1 && (
+        <div className="relative z-20 px-5 sm:px-7 pt-3 pb-2 bg-[#EFE5D5] border-b border-[#DAC9B1] flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5 text-xs font-serif text-[#554030] font-medium">
+            <Layers className="w-3.5 h-3.5 text-[#B89360]" />
+            <span>Reflections ({entriesList.length}):</span>
+          </div>
+          <div className="flex items-center gap-1.5 flex-nowrap">
+            {entriesList.map((e, idx) => (
+              <button
+                key={e.id}
+                type="button"
+                onClick={() => setSelectedEntryIndex(idx)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-serif transition-colors max-w-[130px] truncate ${
+                  selectedEntryIndex === idx
+                    ? "bg-[#342419] text-[#FAF5ED] font-semibold shadow-2xs"
+                    : "bg-[#FAF6EE] text-[#4A3828] hover:bg-[#F5ECE0] border border-[#D8C7B0]"
+                }`}
+                title={e.title}
+              >
+                #{idx + 1} {e.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Outer Top Bar: Date, Flip Controls & Mood */}
       <div className="relative z-20 px-5 sm:px-7 pt-4 pb-3 border-b border-[#D8CABE]/50 bg-[#FAF6ED] flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs font-serif italic text-[#847262]">
           <CalendarIcon className="w-3.5 h-3.5 text-[#B89360]" />
           <span className="font-medium text-[#38261A]">
-            {entry.dateFormatted} ({entry.dayOfWeek})
+            {activeEntry.dateFormatted} ({activeEntry.dayOfWeek})
           </span>
         </div>
 
@@ -174,8 +223,8 @@ export function CalendarEntry({
 
           {/* Mood indicator badge */}
           <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EAE0CD] text-[#423023] border border-[#D5C5AC] text-xs font-medium shadow-2xs">
-            <span className="text-xs">{entry.moodEmoji}</span>
-            <span className="text-[11px]">{entry.moodLabel}</span>
+            <span className="text-xs">{activeEntry.moodEmoji}</span>
+            <span className="text-[11px]">{activeEntry.moodLabel}</span>
           </div>
         </div>
       </div>
@@ -183,7 +232,7 @@ export function CalendarEntry({
       {/* Main Single Page Stage with Smooth 3D Half-Side Page Flip Animation */}
       <div className="relative flex-1 min-h-0 overflow-hidden">
         <PageFlip
-          pageKey={`${entry.id}-leaf-${leafIndex}`}
+          pageKey={`${activeEntry.id}-leaf-${leafIndex}`}
           direction={flipDirection}
           origin="left"
         >
@@ -195,16 +244,16 @@ export function CalendarEntry({
             <div className="pl-5 sm:pl-7 flex-1 overflow-hidden flex flex-col">
               {/* Entry Title */}
               <h2 className="font-serif text-xl sm:text-2xl text-[#2B1D15] tracking-tight mb-3 font-normal italic leading-snug">
-                {leafIndex === 0 ? entry.title : `${entry.title} (cont.)`}
+                {leafIndex === 0 ? activeEntry.title : `${activeEntry.title} (cont.)`}
               </h2>
 
-              {/* Handwritten Lines (fitted to ~380 chars per leaf so it never stretches long) */}
+              {/* Handwritten Lines */}
               <div className="flex-1 overflow-hidden">
                 <HandwritingRenderer
                   text={currentLeafText}
                   style="cursive"
                   fontSize="md"
-                  color={entry.inkColor}
+                  color={activeEntry.inkColor}
                   enableVariations={true}
                 />
               </div>
@@ -217,7 +266,7 @@ export function CalendarEntry({
       <div className="relative z-20 px-5 sm:px-7 py-3 border-t border-[#E8DEC9] bg-[#FAF6ED] flex items-center justify-between text-xs text-[#8C7A6B] font-serif">
         <div className="flex items-center gap-2 text-[11px] text-[#8C7A6B]">
           <FileText className="w-3.5 h-3.5 text-[#B89360]" />
-          <span>{entry.wordCount} words recorded</span>
+          <span>{activeEntry.wordCount} words recorded</span>
         </div>
 
         {/* Leaf indicator dots if multi-page */}
@@ -251,7 +300,7 @@ export function CalendarEntry({
             <span className="hidden xs:inline">Open in Book</span>
           </Link>
           <Link
-            href={`/editor/demo?id=${entry.id}`}
+            href={`/editor/demo?id=${encodeURIComponent(activeEntry.id)}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] transition-all shadow-xs active:scale-95"
           >
             <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />

@@ -8,7 +8,7 @@ import { DiaryGrid } from "@/components/dashboard/DiaryGrid";
 import { RecentEntries } from "@/components/dashboard/RecentEntries";
 import { DiaryStats } from "@/components/dashboard/DiaryStats";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { useDiaryData } from "@/lib/use-diary-data";
+import { useDiaryData, notifyDiaryDataChanged } from "@/lib/use-diary-data";
 import { COVER_THEMES, getCoverTheme } from "@/lib/cover-themes";
 import { DiaryCoverStyle } from "@/types/dashboard";
 import {
@@ -22,6 +22,9 @@ import {
   Feather,
   AlertTriangle,
   CheckCircle2,
+  Calendar,
+  Smile,
+  ArrowRight,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -29,6 +32,7 @@ export default function DashboardPage() {
     diaries,
     recentEntries,
     stats,
+    refresh,
     createDiary,
     deleteDiary,
     deleteEntry,
@@ -37,28 +41,57 @@ export default function DashboardPage() {
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+
+  // Create Diary modal state
   const [isCreatingDiary, setIsCreatingDiary] = useState(false);
   const [newDiaryModalOpen, setNewDiaryModalOpen] = useState(false);
   const [newDiaryTitle, setNewDiaryTitle] = useState("");
   const [newDiaryCover, setNewDiaryCover] = useState<DiaryCoverStyle>("embossed-leather");
+  const [createDiaryError, setCreateDiaryError] = useState<string | null>(null);
+
+  // Quick Entry modal state
+  const todayKey = new Date().toISOString().split("T")[0];
+  const [quickEntryModalOpen, setQuickEntryModalOpen] = useState(false);
+  const [quickTitle, setQuickTitle] = useState("");
+  const [quickContent, setQuickContent] = useState("");
+  const [quickMood, setQuickMood] = useState("happy");
+  const [quickDiaryId, setQuickDiaryId] = useState("");
+  const [quickDate, setQuickDate] = useState(todayKey);
+  const [isSavingQuick, setIsSavingQuick] = useState(false);
+  const [quickEntryError, setQuickEntryError] = useState<string | null>(null);
 
   // Deletion modals state
   const [diaryToDelete, setDiaryToDelete] = useState<{ id: string; title: string } | null>(null);
   const [entryToDelete, setEntryToDelete] = useState<{ id: string; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Theme change feedback
-  const [themeToast, setThemeToast] = useState<string | null>(null);
+  // Success toast feedback
+  const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
 
   const primaryDiary = diaries.length > 0 ? diaries[0] : null;
+
+  const showToast = (msg: string) => {
+    setFeedbackToast(msg);
+    setTimeout(() => setFeedbackToast(null), 3500);
+  };
 
   const handleAction = (actionId: string) => {
     switch (actionId) {
       case "new-entry":
-        window.location.href = "/editor/demo?new=true";
+        setQuickTitle("");
+        setQuickContent("");
+        setQuickMood("happy");
+        setQuickDate(new Date().toISOString().split("T")[0]);
+        setQuickDiaryId(primaryDiary?.id || "");
+        setQuickEntryError(null);
+        setQuickEntryModalOpen(true);
         return;
       case "open-diary":
-        window.location.href = "/diary/demo";
+        if (primaryDiary) {
+          window.location.href = `/diary/demo?diaryId=${encodeURIComponent(primaryDiary.id)}`;
+        } else {
+          window.location.href = "/diary/demo";
+        }
         return;
       case "calendar":
         window.location.href = "/calendar";
@@ -72,12 +105,13 @@ export default function DashboardPage() {
   };
 
   const handleOpenDiary = (diaryId: string) => {
-    window.location.href = "/diary/demo";
+    window.location.href = `/diary/demo?diaryId=${encodeURIComponent(diaryId)}`;
   };
 
   const handleCreateDiary = () => {
     setNewDiaryTitle("");
     setNewDiaryCover("embossed-leather");
+    setCreateDiaryError(null);
     setNewDiaryModalOpen(true);
   };
 
@@ -85,13 +119,61 @@ export default function DashboardPage() {
     e.preventDefault();
     const titleToUse = newDiaryTitle.trim() || "My New Journal";
     setIsCreatingDiary(true);
+    setCreateDiaryError(null);
     try {
       await createDiary(titleToUse, newDiaryCover);
       setNewDiaryModalOpen(false);
-    } catch (err) {
+      showToast(`Created diary volume "${titleToUse}"`);
+    } catch (err: any) {
       console.error("Failed to create diary:", err);
+      setCreateDiaryError(err.message || "Failed to create diary. Please try again.");
     } finally {
       setIsCreatingDiary(false);
+    }
+  };
+
+  const handleSaveQuickEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickTitle.trim()) {
+      setQuickEntryError("Please enter a title for your entry.");
+      return;
+    }
+
+    setIsSavingQuick(true);
+    setQuickEntryError(null);
+    try {
+      const payload = {
+        title: quickTitle.trim(),
+        content: quickContent,
+        mood: quickMood,
+        diaryId: quickDiaryId || primaryDiary?.id,
+        date: quickDate ? new Date(quickDate).toISOString() : new Date().toISOString(),
+        handwritingFont: "cursive",
+        inkColor: "midnight",
+      };
+
+      const res = await fetch("/api/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: "Failed to save entry" }));
+        throw new Error(errorData.error || "Failed to save entry");
+      }
+
+      setQuickEntryModalOpen(false);
+      setQuickTitle("");
+      setQuickContent("");
+      await refresh();
+      notifyDiaryDataChanged();
+      showToast("Reflection saved to your journal!");
+    } catch (err: any) {
+      console.error("Quick entry save error:", err);
+      setQuickEntryError(err.message || "Could not save entry. Please try again.");
+    } finally {
+      setIsSavingQuick(false);
     }
   };
 
@@ -104,6 +186,7 @@ export default function DashboardPage() {
     setIsDeleting(true);
     try {
       await deleteDiary(diaryToDelete.id);
+      showToast(`Deleted "${diaryToDelete.title}"`);
       setDiaryToDelete(null);
     } catch (err) {
       console.error("Failed to delete diary:", err);
@@ -117,6 +200,7 @@ export default function DashboardPage() {
     setIsDeleting(true);
     try {
       await deleteEntry(entryToDelete.id);
+      showToast(`Deleted "${entryToDelete.title}"`);
       setEntryToDelete(null);
     } catch (err) {
       console.error("Failed to delete entry:", err);
@@ -130,8 +214,7 @@ export default function DashboardPage() {
     try {
       await updateDiaryCover(primaryDiary.id, themeId);
       const theme = getCoverTheme(themeId);
-      setThemeToast(theme.name);
-      setTimeout(() => setThemeToast(null), 3500);
+      showToast(`Cover updated to "${theme.name}"!`);
     } catch (err) {
       console.error("Failed to update cover theme:", err);
     }
@@ -363,17 +446,178 @@ export default function DashboardPage() {
       {/* Mobile Bottom Navigation Bar */}
       <MobileBottomNav />
 
-      {/* Theme Applied Toast Alert */}
-      {themeToast && (
+      {/* Toast Alert */}
+      {feedbackToast && (
         <div className="fixed bottom-12 right-6 z-50 bg-[#342419] text-[#FAF5ED] px-4 py-3 rounded-xl shadow-xl border border-[#553E2D] flex items-center gap-2.5 text-xs font-serif animate-in slide-in-from-bottom-2 duration-200">
           <CheckCircle2 className="w-4 h-4 text-[#73A663]" />
-          <span>Cover updated to &ldquo;{themeToast}&rdquo;!</span>
+          <span>{feedbackToast}</span>
           <button
-            onClick={() => setThemeToast(null)}
+            onClick={() => setFeedbackToast(null)}
             className="ml-2 text-[#B8A695] hover:text-white"
           >
             <X className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+
+      {/* Interactive Quick Diary / Quick Entry Modal */}
+      {quickEntryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#261A13]/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-7 max-w-lg w-full relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setQuickEntryModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#887564] hover:bg-[#EFE5D5] transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EFE5D5] text-[#554030] text-xs font-mono uppercase tracking-wider mb-3 border border-[#DDD0BC]">
+              <PenTool className="w-3.5 h-3.5 text-[#B89360]" />
+              <span>Quick Journal Reflection</span>
+            </div>
+
+            <h3 className="font-serif text-2xl text-[#261A13] font-normal mb-1">
+              Capture a Thought
+            </h3>
+            <p className="text-xs text-[#665547] font-light leading-relaxed mb-4">
+              Pen a quick memory directly into your journal with instant cloud persistence.
+            </p>
+
+            {quickEntryError && (
+              <div className="mb-4 p-3 rounded-xl bg-[#FDF2F2] border border-[#F8D7DA] text-xs text-[#842029] flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>{quickEntryError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveQuickEntry} className="space-y-4">
+              {/* Target Diary & Date Selection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-serif text-[#4D3A2C] mb-1 font-medium">
+                    Journal Volume
+                  </label>
+                  <select
+                    value={quickDiaryId || primaryDiary?.id || ""}
+                    onChange={(e) => setQuickDiaryId(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-[#F4EDE2] border border-[#D8C7B0] text-[#2C2016] text-xs focus:outline-none focus:border-[#8E6945]"
+                  >
+                    {diaries.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-serif text-[#4D3A2C] mb-1 font-medium">
+                    Date of Memory
+                  </label>
+                  <input
+                    type="date"
+                    value={quickDate}
+                    onChange={(e) => setQuickDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-[#F4EDE2] border border-[#D8C7B0] text-[#2C2016] text-xs focus:outline-none focus:border-[#8E6945]"
+                  />
+                </div>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-serif text-[#4D3A2C] mb-1 font-medium">
+                  Entry Title
+                </label>
+                <input
+                  type="text"
+                  value={quickTitle}
+                  onChange={(e) => setQuickTitle(e.target.value)}
+                  placeholder="e.g. Afternoon light, A quiet walk..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F4EDE2] border border-[#D8C7B0] text-[#2C2016] placeholder:text-[#A49483] text-sm focus:outline-none focus:border-[#8E6945]"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              {/* Mood Pills */}
+              <div>
+                <label className="block text-xs font-serif text-[#4D3A2C] mb-1.5 font-medium">
+                  Current Mood
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "happy", label: "Inspired ✨" },
+                    { id: "calm", label: "Calm 🌿" },
+                    { id: "reflective", label: "Reflective ☕" },
+                    { id: "peaceful", label: "Peaceful 🌙" },
+                    { id: "grateful", label: "Grateful 🌸" },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setQuickMood(m.id)}
+                      className={`px-3 py-1 rounded-full text-xs font-serif transition-colors border ${
+                        quickMood === m.id
+                          ? "bg-[#342419] text-[#FAF5ED] border-[#342419]"
+                          : "bg-[#F4EDE2] text-[#554030] border-[#D8C7B0] hover:bg-[#EFE6D6]"
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Content Textarea with Paper Feel */}
+              <div>
+                <label className="block text-xs font-serif text-[#4D3A2C] mb-1 font-medium">
+                  Your Reflection
+                </label>
+                <textarea
+                  value={quickContent}
+                  onChange={(e) => setQuickContent(e.target.value)}
+                  placeholder="Write your thoughts here..."
+                  rows={5}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6ED] border border-[#D8C7B0] text-[#2C2016] placeholder:text-[#A49483] text-sm focus:outline-none focus:border-[#8E6945] handwriting-ink leading-relaxed"
+                />
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex items-center justify-between pt-3 border-t border-[#E8DFC9]">
+                <a
+                  href="/editor/demo?new=true"
+                  className="text-xs font-serif text-[#8E6945] hover:text-[#553822] flex items-center gap-1 transition-colors"
+                >
+                  <span>Open Full Studio</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setQuickEntryModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingQuick}
+                    className="px-5 py-2 rounded-xl bg-[#342419] text-[#FAF5ED] text-xs font-medium hover:bg-[#483324] disabled:opacity-50 transition-colors shadow-xs flex items-center gap-1.5"
+                  >
+                    {isSavingQuick ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />
+                        <span>Save Entry</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -397,9 +641,16 @@ export default function DashboardPage() {
               Bind a New Journal
             </h3>
 
-            <p className="text-xs text-[#665547] font-light leading-relaxed mb-5">
+            <p className="text-xs text-[#665547] font-light leading-relaxed mb-4">
               Give your journal a title and select an illustrated theme cover or classic leather for your shelf.
             </p>
+
+            {createDiaryError && (
+              <div className="mb-4 p-3 rounded-xl bg-[#FDF2F2] border border-[#F8D7DA] text-xs text-[#842029] flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>{createDiaryError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmitNewDiary} className="space-y-4">
               <div>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthenticatedUser } from "@/lib/auth-user";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -11,17 +11,22 @@ interface RouteParams {
 // GET /api/diaries/[id] - Fetch single diary volume
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { id } = await params;
+
     const diary = await prisma.diary.findFirst({
       where: { id, userId },
       include: {
         entries: {
           orderBy: { date: "desc" },
+        },
+        _count: {
+          select: { entries: true },
         },
       },
     });
@@ -40,11 +45,12 @@ export async function GET(req: Request, { params }: RouteParams) {
 // PUT /api/diaries/[id] - Update diary volume
 export async function PUT(req: Request, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { id } = await params;
     const body = await req.json();
     const { title, description, coverColor, paperStyle, isFavorite } = body;
@@ -60,11 +66,11 @@ export async function PUT(req: Request, { params }: RouteParams) {
     const updated = await prisma.diary.update({
       where: { id },
       data: {
-        ...(title !== undefined && { title: title.trim() }),
-        ...(description !== undefined && { description: description?.trim() || null }),
-        ...(coverColor !== undefined && { coverColor }),
-        ...(paperStyle !== undefined && { paperStyle }),
-        ...(isFavorite !== undefined && { isFavorite }),
+        ...(title !== undefined && typeof title === "string" ? { title: title.trim() } : {}),
+        ...(description !== undefined ? { description: description?.trim() || null } : {}),
+        ...(coverColor !== undefined ? { coverColor } : {}),
+        ...(paperStyle !== undefined ? { paperStyle } : {}),
+        ...(isFavorite !== undefined ? { isFavorite: Boolean(isFavorite) } : {}),
       },
     });
 
@@ -78,12 +84,14 @@ export async function PUT(req: Request, { params }: RouteParams) {
 // DELETE /api/diaries/[id] - Delete diary volume
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { id } = await params;
+
     const existing = await prisma.diary.findFirst({
       where: { id, userId },
     });

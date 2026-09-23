@@ -20,14 +20,15 @@ import {
   Save,
   Check,
   Sparkles,
-  TextCursorInput
+  TextCursorInput,
+  AlertCircle
 } from "lucide-react";
 
 interface EditorToolbarProps {
   settings: EditorSettings;
   onUpdateSettings: (updates: Partial<EditorSettings>) => void;
   onSave: () => void;
-  saveStatus: "idle" | "saving" | "saved";
+  saveStatus: "idle" | "saving" | "saved" | "error";
 }
 
 export function EditorToolbar({
@@ -148,17 +149,30 @@ export function EditorToolbar({
 
         {/* Right Toolbar Cluster: Autosave status & Save Button */}
         <div className="flex items-center gap-3 ml-auto">
-          {/* Simulated Autosave Status */}
+          {/* Autosave Status */}
           <div className="flex items-center gap-1.5 text-xs font-serif italic text-[#7C6958]">
-            {saveStatus === "saving" ? (
+            {saveStatus === "saving" && (
               <>
                 <span className="w-2 h-2 rounded-full bg-[#D4A137] animate-pulse" />
                 <span>Saving to paper...</span>
               </>
-            ) : (
+            )}
+            {saveStatus === "saved" && (
               <>
                 <span className="w-2 h-2 rounded-full bg-[#5D8A50]" />
                 <span>Saved just now</span>
+              </>
+            )}
+            {saveStatus === "error" && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-[#B33939]" />
+                <span className="text-[#B33939]">Save failed</span>
+              </>
+            )}
+            {saveStatus === "idle" && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-[#9E8B7A]" />
+                <span>Unsaved changes</span>
               </>
             )}
           </div>

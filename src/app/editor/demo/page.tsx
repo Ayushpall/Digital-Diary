@@ -37,13 +37,18 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
+import { notifyDiaryDataChanged } from "@/lib/use-diary-data";
+
 function EditorDemoContent() {
   const { isSignedIn, isLoaded } = useAuth();
   const searchParams = useSearchParams();
   const isNewParam = searchParams.get("new") === "true";
   const entryIdParam = searchParams.get("id");
+  const dateParam = searchParams.get("date");
+  const diaryIdParam = searchParams.get("diaryId");
 
   const [entryId, setEntryId] = useState<string | null>(entryIdParam);
+  const [diaryId, setDiaryId] = useState<string | null>(diaryIdParam);
   const [title, setTitle] = useState(isNewParam ? "" : "Thoughts on Machine & Mind");
   const [content, setContent] = useState(
     isNewParam
@@ -51,18 +56,32 @@ function EditorDemoContent() {
       : "Today I learned something interesting about artificial intelligence.\n\nWhile computers compute patterns at astronomical speeds, they don't possess human nostalgia or the quiet feeling of writing by candlelight. Tools like this remind me that technology is at its best when it serves human reflection, rather than replacing it."
   );
 
-  const [date, setDate] = useState(
-    new Date().toLocaleDateString("en-US", {
+  const initialDateStr = React.useMemo(() => {
+    if (dateParam) {
+      const candidate = new Date(dateParam);
+      if (!isNaN(candidate.getTime())) {
+        return candidate.toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    }
+    return new Date().toLocaleDateString("en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
-    })
-  );
+    });
+  }, [dateParam]);
+
+  const [date, setDate] = useState<string>(initialDateStr);
   const [mood, setMood] = useState<DiaryMood>("happy");
   const [activeDraftTab, setActiveDraftTab] = useState<"text" | "photo" | "sketch" | "stickers">("text");
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("saved");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("saved");
   const [activeMobileView, setActiveMobileView] = useState<"write" | "preview">("write");
   const [showSavedToast, setShowSavedToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("Journal page saved with all creative attachments!");
+  const [toastIsError, setToastIsError] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -83,6 +102,13 @@ function EditorDemoContent() {
   const [hasInitialized, setHasInitialized] = useState(false);
   const isSavingRef = React.useRef(false);
 
+  const showToast = (msg: string, isError = false) => {
+    setToastMessage(msg);
+    setToastIsError(isError);
+    setShowSavedToast(true);
+    setTimeout(() => setShowSavedToast(false), 3500);
+  };
+
   // Load existing entry if id param is provided
   useEffect(() => {
     if (entryIdParam && isLoaded) {
@@ -94,6 +120,19 @@ function EditorDemoContent() {
             setContent(data.entry.content || "");
             if (data.entry.blocks) setBlocks(data.entry.blocks);
             if (data.entry.mood) setMood(data.entry.mood);
+            if (data.entry.diaryId) setDiaryId(data.entry.diaryId);
+            if (data.entry.date) {
+              const d = new Date(data.entry.date);
+              if (!isNaN(d.getTime())) {
+                setDate(
+                  d.toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                );
+              }
+            }
             if (data.entry.handwritingFont) {
               setSettings((prev) => ({ ...prev, font: data.entry.handwritingFont }));
             }
@@ -138,6 +177,9 @@ function EditorDemoContent() {
       isSavingRef.current = true;
       try {
         if (isSignedIn) {
+          const parsedDate = new Date(date);
+          const validDate = !isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : new Date().toISOString();
+
           const payload = {
             title: title.trim() || "Untitled Entry",
             content,
@@ -145,15 +187,23 @@ function EditorDemoContent() {
             handwritingFont: settings.font,
             inkColor: settings.inkColor,
             mood,
+            diaryId: diaryId || undefined,
+            date: validDate,
           };
 
           if (entryId) {
             // Update existing entry
-            await fetch(`/api/entries/${entryId}`, {
+            const res = await fetch(`/api/entries/${entryId}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
             });
+            if (res.ok) {
+              setSaveStatus("saved");
+              notifyDiaryDataChanged();
+            } else {
+              setSaveStatus("error");
+            }
           } else {
             // Create new entry
             const res = await fetch("/api/entries", {
@@ -168,26 +218,30 @@ function EditorDemoContent() {
                 // Update URL quietly without full page reload
                 window.history.replaceState(null, "", `/editor/demo?id=${data.entry.id}`);
               }
+              setSaveStatus("saved");
+              notifyDiaryDataChanged();
+            } else {
+              setSaveStatus("error");
             }
           }
         } else {
           // Guest draft saved locally in browser
           localStorage.setItem(
             "digital_diary_draft",
-            JSON.stringify({ title, content, blocks, mood, settings })
+            JSON.stringify({ title, content, blocks, mood, settings, date })
           );
+          setSaveStatus("saved");
         }
-        setSaveStatus("saved");
       } catch (err) {
         console.error("Auto-save error:", err);
-        setSaveStatus("idle");
+        setSaveStatus("error");
       } finally {
         isSavingRef.current = false;
       }
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [title, content, settings, mood, blocks, isSignedIn, entryId, hasInitialized]);
+  }, [title, content, settings, mood, blocks, isSignedIn, entryId, hasInitialized, date, diaryId]);
 
   const handleUpdateSettings = (updates: Partial<EditorSettings>) => {
     setSettings((prev) => ({ ...prev, ...updates }));
@@ -197,6 +251,9 @@ function EditorDemoContent() {
     setSaveStatus("saving");
     try {
       if (isSignedIn) {
+        const parsedDate = new Date(date);
+        const validDate = !isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : new Date().toISOString();
+
         const payload = {
           title: title.trim() || "Untitled Entry",
           content,
@@ -204,14 +261,24 @@ function EditorDemoContent() {
           handwritingFont: settings.font,
           inkColor: settings.inkColor,
           mood,
+          diaryId: diaryId || undefined,
+          date: validDate,
         };
 
         if (entryId) {
-          await fetch(`/api/entries/${entryId}`, {
+          const res = await fetch(`/api/entries/${entryId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
+          if (res.ok) {
+            setSaveStatus("saved");
+            notifyDiaryDataChanged();
+            showToast("Reflection saved to your journal!", false);
+          } else {
+            setSaveStatus("error");
+            showToast("Failed to save entry. Please try again.", true);
+          }
         } else {
           const res = await fetch("/api/entries", {
             method: "POST",
@@ -224,20 +291,26 @@ function EditorDemoContent() {
               setEntryId(data.entry.id);
               window.history.replaceState(null, "", `/editor/demo?id=${data.entry.id}`);
             }
+            setSaveStatus("saved");
+            notifyDiaryDataChanged();
+            showToast("New reflection bound to your journal!", false);
+          } else {
+            setSaveStatus("error");
+            showToast("Failed to create entry. Please try again.", true);
           }
         }
       } else {
         localStorage.setItem(
           "digital_diary_draft",
-          JSON.stringify({ title, content, blocks, mood, settings })
+          JSON.stringify({ title, content, blocks, mood, settings, date })
         );
+        setSaveStatus("saved");
+        showToast("Draft saved locally in your browser!", false);
       }
-      setSaveStatus("saved");
-      setShowSavedToast(true);
-      setTimeout(() => setShowSavedToast(false), 3000);
     } catch (e) {
       console.error("Save error:", e);
-      setSaveStatus("idle");
+      setSaveStatus("error");
+      showToast("An unexpected error occurred while saving.", true);
     }
   };
 
@@ -246,6 +319,7 @@ function EditorDemoContent() {
     try {
       if (entryId && isSignedIn) {
         await fetch(`/api/entries/${entryId}`, { method: "DELETE" });
+        notifyDiaryDataChanged();
       }
       if (typeof window !== "undefined") {
         localStorage.removeItem("digital_diary_draft");
@@ -647,9 +721,17 @@ function EditorDemoContent() {
 
       {/* Saved Toast Alert */}
       {showSavedToast && (
-        <div className="fixed bottom-12 right-6 z-50 bg-[#342419] text-[#FAF5ED] px-4 py-3 rounded-xl shadow-xl border border-[#553E2D] flex items-center gap-2.5 text-xs font-serif animate-in slide-in-from-bottom-2 duration-200">
-          <CheckCircle2 className="w-4 h-4 text-[#73A663]" />
-          <span>Journal page saved with all creative attachments!</span>
+        <div className={`fixed bottom-12 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border flex items-center gap-2.5 text-xs font-serif animate-in slide-in-from-bottom-2 duration-200 ${
+          toastIsError
+            ? "bg-[#661D1D] text-[#FAF5ED] border-[#8B2626]"
+            : "bg-[#342419] text-[#FAF5ED] border-[#553E2D]"
+        }`}>
+          {toastIsError ? (
+            <X className="w-4 h-4 text-[#FCA5A5]" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-[#73A663]" />
+          )}
+          <span>{toastMessage}</span>
           <button
             onClick={() => setShowSavedToast(false)}
             className="ml-2 text-[#B8A695] hover:text-white"

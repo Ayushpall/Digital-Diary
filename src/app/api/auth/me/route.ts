@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/auth-user";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const authUser = await getAuthenticatedUser();
 
-    if (!userId) {
+    if (!authUser) {
       return NextResponse.json(
         {
           status: "unauthenticated",
@@ -19,35 +18,7 @@ export async function GET() {
       );
     }
 
-    // Retrieve clerk user profile details
-    const clerkUser = await currentUser();
-    const primaryEmail =
-      clerkUser?.emailAddresses.find(
-        (e) => e.id === clerkUser.primaryEmailAddressId
-      )?.emailAddress ??
-      clerkUser?.emailAddresses[0]?.emailAddress ??
-      "";
-
-    const fullName =
-      [clerkUser?.firstName, clerkUser?.lastName].filter(Boolean).join(" ") ||
-      clerkUser?.username ||
-      null;
-
-    // Synchronize user record in Neon database
-    const dbUser = await prisma.user.upsert({
-      where: { id: userId },
-      update: {
-        email: primaryEmail,
-        name: fullName,
-        imageUrl: clerkUser?.imageUrl ?? null,
-      },
-      create: {
-        id: userId,
-        email: primaryEmail,
-        name: fullName,
-        imageUrl: clerkUser?.imageUrl ?? null,
-      },
-    });
+    const { dbUser } = authUser;
 
     return NextResponse.json({
       status: "ok",
@@ -57,7 +28,6 @@ export async function GET() {
         email: dbUser.email,
         name: dbUser.name,
         imageUrl: dbUser.imageUrl,
-        createdAt: dbUser.createdAt,
       },
     });
   } catch (error) {

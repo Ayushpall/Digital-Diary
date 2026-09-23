@@ -26,14 +26,16 @@ export default function CalendarPage() {
 
   const [currentDate, setCurrentDate] = useState<Date>(now);
   const [selectedDateKey, setSelectedDateKey] = useState<string>(todayKey);
-  const [calendarEntries, setCalendarEntries] = useState<Record<string, CalendarEntryData>>({});
+  const [calendarEntries, setCalendarEntries] = useState<Record<string, CalendarEntryData[]>>({});
 
-  useEffect(() => {
-    if (!isLoaded) return;
-
+  const loadEntries = () => {
     if (!isSignedIn) {
       // Unauthenticated demo visitors can explore mock calendar entries
-      setCalendarEntries(mockCalendarEntries);
+      const normalizedMock: Record<string, CalendarEntryData[]> = {};
+      Object.entries(mockCalendarEntries).forEach(([k, v]) => {
+        normalizedMock[k] = [v];
+      });
+      setCalendarEntries(normalizedMock);
       setSelectedDateKey("2026-09-18");
       setCurrentDate(new Date(2026, 8, 18));
       return;
@@ -44,11 +46,11 @@ export default function CalendarPage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && data.entries && data.entries.length > 0) {
-          const map: Record<string, CalendarEntryData> = {};
+          const map: Record<string, CalendarEntryData[]> = {};
           data.entries.forEach((e: any) => {
             const d = new Date(e.date);
             const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-            map[dateKey] = {
+            const item: CalendarEntryData = {
               id: e.id,
               dateKey,
               dateFormatted: d.toLocaleDateString("en-US", {
@@ -65,6 +67,10 @@ export default function CalendarPage() {
               diaryName: e.diaryTitle || "My Journal",
               wordCount: e.content ? e.content.trim().split(/\s+/).length : 0,
             };
+            if (!map[dateKey]) {
+              map[dateKey] = [];
+            }
+            map[dateKey].push(item);
           });
           setCalendarEntries(map);
 
@@ -81,6 +87,20 @@ export default function CalendarPage() {
         }
       })
       .catch((err) => console.error("Error fetching calendar entries:", err));
+  };
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    loadEntries();
+
+    const handleDataChange = () => {
+      loadEntries();
+    };
+
+    window.addEventListener("diary-data-changed", handleDataChange);
+    return () => {
+      window.removeEventListener("diary-data-changed", handleDataChange);
+    };
   }, [isSignedIn, isLoaded]);
 
   // Format the selected date for display
@@ -119,7 +139,8 @@ export default function CalendarPage() {
     }
   };
 
-  const selectedEntry = calendarEntries[selectedDateKey] || null;
+  const selectedEntries = calendarEntries[selectedDateKey] || [];
+  const selectedEntry = selectedEntries[0] || null;
 
   return (
     <div className="min-h-screen bg-[#F8F4EC] text-[#2C2621] flex flex-col justify-between">
@@ -190,6 +211,8 @@ export default function CalendarPage() {
           <div className="lg:col-span-5" id="entry-detail-card">
             <CalendarEntry
               entry={selectedEntry}
+              entries={selectedEntries}
+              selectedDateKey={selectedDateKey}
               selectedDateStr={getFormattedSelectedDate(selectedDateKey)}
             />
           </div>

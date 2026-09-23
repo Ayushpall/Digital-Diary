@@ -17,7 +17,7 @@ interface CalendarViewProps {
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onGoToday: () => void;
-  entriesMap: Record<string, CalendarEntryData>;
+  entriesMap: Record<string, CalendarEntryData | CalendarEntryData[]>;
 }
 
 export function CalendarView({
@@ -164,8 +164,14 @@ export function CalendarView({
       {/* Monthly Days Grid */}
       <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {cells.map((cell, idx) => {
-          const hasEntry = Boolean(entriesMap[cell.dateKey]);
-          const entry = entriesMap[cell.dateKey];
+          const rawEntries = entriesMap[cell.dateKey];
+          const entriesList = Array.isArray(rawEntries)
+            ? rawEntries
+            : rawEntries
+            ? [rawEntries]
+            : [];
+          const hasEntry = entriesList.length > 0;
+          const entry = entriesList[0];
           const isSelected = selectedDateKey === cell.dateKey;
           const isToday = todayKey === cell.dateKey;
 
@@ -195,14 +201,21 @@ export function CalendarView({
 
                 {/* Entry Visual Indicator badge */}
                 {hasEntry && (
-                  <span
-                    className={`text-xs ${
-                      isSelected ? "scale-110" : "group-hover:scale-110"
-                    } transition-transform`}
-                    title={`${entry.moodLabel}: ${entry.title}`}
-                  >
-                    {entry.moodEmoji}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {entriesList.length > 1 && (
+                      <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-[#EFE5D5] text-[#4A3828]">
+                        +{entriesList.length}
+                      </span>
+                    )}
+                    <span
+                      className={`text-xs ${
+                        isSelected ? "scale-110" : "group-hover:scale-110"
+                      } transition-transform`}
+                      title={`${entry.moodLabel}: ${entry.title}`}
+                    >
+                      {entry.moodEmoji}
+                    </span>
+                  </div>
                 )}
               </div>
 

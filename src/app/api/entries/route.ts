@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthenticatedUser } from "@/lib/auth-user";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -7,21 +7,33 @@ export const dynamic = "force-dynamic";
 // GET /api/entries - List tenant entries with optional filtering
 export async function GET(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const { searchParams } = new URL(req.url);
     const diaryId = searchParams.get("diaryId");
     const query = searchParams.get("q");
     const favoriteOnly = searchParams.get("favorite") === "true";
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
+
+    const dateFilter: { gte?: Date; lte?: Date } = {};
+    if (startDateParam && !isNaN(new Date(startDateParam).getTime())) {
+      dateFilter.gte = new Date(startDateParam);
+    }
+    if (endDateParam && !isNaN(new Date(endDateParam).getTime())) {
+      dateFilter.lte = new Date(endDateParam);
+    }
 
     const entries = await prisma.entry.findMany({
       where: {
         userId,
         ...(diaryId ? { diaryId } : {}),
         ...(favoriteOnly ? { isFavorite: true } : {}),
+        ...(Object.keys(dateFilter).length > 0 ? { date: dateFilter } : {}),
         ...(query
           ? {
               OR: [
@@ -33,10 +45,10 @@ export async function GET(req: Request) {
       },
       include: {
         diary: {
-          select: { title: true, coverColor: true },
+          select: { title: true, coverColor: true, paperStyle: true },
         },
       },
-      orderBy: { date: "desc" },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     });
 
     return NextResponse.json({
@@ -46,6 +58,7 @@ export async function GET(req: Request) {
         diaryId: e.diaryId,
         diaryTitle: e.diary.title,
         coverColor: e.diary.coverColor,
+        paperStyle: e.diary.paperStyle,
         title: e.title,
         content: e.content,
         blocks: e.blocks,
@@ -56,6 +69,7 @@ export async function GET(req: Request) {
         weather: e.weather,
         isFavorite: e.isFavorite,
         createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
       })),
     });
   } catch (error) {
@@ -67,11 +81,12 @@ export async function GET(req: Request) {
 // POST /api/entries - Create a new entry in tenant's diary
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { userId } = authUser;
     const body = await req.json();
     const {
       diaryId,
@@ -90,7 +105,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
-    // Verify diary exists and belongs to this tenant, or auto-assign/create default
+    // Verify target diary belongs to user, or resolve/create default
     let targetDiaryId = diaryId;
     if (!targetDiaryId) {
       const defaultDiary = await prisma.diary.findFirst({
@@ -105,7 +120,8 @@ export async function POST(req: Request) {
           data: {
             userId,
             title: "My Personal Journal",
-            coverColor: "burgundy",
+            description: "Daily reflections, quiet musings, and evening thoughts.",
+            coverColor: "embossed-leather",
             paperStyle: "ruled",
           },
         });
@@ -120,6 +136,14 @@ export async function POST(req: Request) {
       }
     }
 
+    let parsedDate = new Date();
+    if (date) {
+      const candidate = new Date(date);
+      if (!isNaN(candidate.getTime())) {
+        parsedDate = candidate;
+      }
+    }
+
     const entry = await prisma.entry.create({
       data: {
         userId,
@@ -129,14 +153,47 @@ export async function POST(req: Request) {
         blocks: blocks || undefined,
         handwritingFont,
         inkColor,
-        mood,
-        weather,
+        mood: mood || null,
+        weather: weather || null,
         isFavorite: Boolean(isFavorite),
-        date: date && !isNaN(new Date(date).getTime()) ? new Date(date) : new Date(),
+        date: parsedDate,
+      },
+      include: {
+        diary: {
+          select: { title: true, coverColor: true },
+        },
       },
     });
 
-    return NextResponse.json({ status: "ok", entry }, { status: 201 });
+    // Touch the diary's updatedAt timestamp
+    await prisma.diary.update({
+      where: { id: targetDiaryId },
+      data: { updatedAt: new Date() },
+    });
+
+    return NextResponse.json(
+      {
+        status: "ok",
+        entry: {
+          id: entry.id,
+          diaryId: entry.diaryId,
+          diaryTitle: entry.diary.title,
+          coverColor: entry.diary.coverColor,
+          title: entry.title,
+          content: entry.content,
+          blocks: entry.blocks,
+          handwritingFont: entry.handwritingFont,
+          inkColor: entry.inkColor,
+          date: entry.date.toISOString(),
+          mood: entry.mood,
+          weather: entry.weather,
+          isFavorite: entry.isFavorite,
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating entry:", error);
     return NextResponse.json({ error: "Failed to create entry" }, { status: 500 });

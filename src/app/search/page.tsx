@@ -23,9 +23,7 @@ export default function SearchPage() {
   const [activeFilter, setActiveFilter] = useState<SearchTimeframe>("all");
   const [entries, setEntries] = useState<SearchableDiaryEntry[]>([]);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-
+  const loadEntries = () => {
     if (!isSignedIn) {
       // For guest demo mode, show mock entries and seed query
       setEntries(mockSearchEntries);
@@ -78,6 +76,20 @@ export default function SearchPage() {
         }
       })
       .catch((err) => console.error("Error fetching search entries:", err));
+  };
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    loadEntries();
+
+    const handleDataChange = () => {
+      loadEntries();
+    };
+
+    window.addEventListener("diary-data-changed", handleDataChange);
+    return () => {
+      window.removeEventListener("diary-data-changed", handleDataChange);
+    };
   }, [isSignedIn, isLoaded]);
 
   // Filter entries based on query (title, content, date, tags, mood) and timeframe
@@ -194,7 +206,7 @@ export default function SearchPage() {
         {/* Results List with Timeframe Filtering & Highlighted Words */}
         <SearchResults
           entries={filteredEntries}
-          totalCount={mockSearchEntries.length}
+          totalCount={entries.length}
           query={query}
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}

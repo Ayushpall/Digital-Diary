@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { DiaryBook } from "@/components/diary/DiaryBook";
 import { sampleDiaryPages } from "@/lib/diary-data";
@@ -9,8 +10,11 @@ import { DiaryPageData } from "@/types/diary";
 import { paginateContent } from "@/lib/pagination";
 import { Feather, ArrowLeft, Sparkles, Home } from "lucide-react";
 
-export default function DiaryDemoPage() {
+function DiaryDemoContent() {
   const { isSignedIn, isLoaded } = useAuth();
+  const searchParams = useSearchParams();
+  const diaryIdParam = searchParams.get("diaryId");
+
   const [pages, setPages] = useState<DiaryPageData[]>(() => {
     // Paginate sample demo pages as well so demo text never overflows
     const paginatedSample: DiaryPageData[] = [];
@@ -38,88 +42,107 @@ export default function DiaryDemoPage() {
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
 
-    // Fetch primary diary details for cover styling
-    fetch("/api/diaries")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && data.diaries && data.diaries.length > 0) {
-          setPrimaryDiaryCover(data.diaries[0].coverColor || "embossed-leather");
-          setPrimaryDiaryTitle(data.diaries[0].title || "My Personal Journal");
-        }
-      })
-      .catch(() => {});
+    let activeDiaryTitle = "My Personal Journal";
 
-    fetch("/api/entries")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && data.entries && data.entries.length > 0) {
-          const cover: DiaryPageData = {
-            id: "user-diary-cover",
-            pageNumber: 0,
-            isCover: true,
-            title: data.entries[0]?.diaryTitle || "My Personal Journal",
-            content: "",
-          };
-
-          const realPages: DiaryPageData[] = [];
-          let currentFolioNumber = 1;
-
-          data.entries.forEach((e: any) => {
-            const d = new Date(e.date);
-            const dateFormatted = d.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            });
-            const dayOfWeek = d.toLocaleDateString("en-US", { weekday: "long" });
-
-            // Automatically split entry when full at 500 characters so each page flips cleanly
-            const chunks = paginateContent(e.content || "", 500);
-
-            chunks.forEach((chunk, chunkIndex) => {
-              realPages.push({
-                id: `${e.id}-p${chunkIndex + 1}`,
-                entryId: e.id,
-                pageNumber: currentFolioNumber++,
-                title: chunkIndex === 0 ? e.title : `${e.title} (cont.)`,
-                content: chunk,
-                blocks: chunkIndex === 0 ? e.blocks : undefined,
-                date: dateFormatted,
-                dayOfWeek: dayOfWeek,
-                mood: chunkIndex === 0 ? e.mood : undefined,
-                ink: "midnight",
-                paperStyle: "lined",
-              });
-            });
+    // 1. Fetch diary info
+    const diaryPromise = diaryIdParam
+      ? fetch(`/api/diaries/${diaryIdParam}`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (data && data.diary) {
+              setPrimaryDiaryCover(data.diary.coverColor || "embossed-leather");
+              setPrimaryDiaryTitle(data.diary.title || "My Personal Journal");
+              activeDiaryTitle = data.diary.title || "My Personal Journal";
+            }
+          })
+      : fetch("/api/diaries")
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (data && data.diaries && data.diaries.length > 0) {
+              setPrimaryDiaryCover(data.diaries[0].coverColor || "embossed-leather");
+              setPrimaryDiaryTitle(data.diaries[0].title || "My Personal Journal");
+              activeDiaryTitle = data.diaries[0].title || "My Personal Journal";
+            }
           });
 
-          setPages([cover, ...realPages]);
-        } else if (isSignedIn) {
-          // Fresh signed-in user with no entries yet
-          setPages([
-            {
-              id: "fresh-diary-cover",
+    diaryPromise.catch(() => {}).finally(() => {
+      // 2. Fetch entries scoped to diary if diaryId is provided
+      const entriesUrl = diaryIdParam
+        ? `/api/entries?diaryId=${diaryIdParam}`
+        : "/api/entries";
+
+      fetch(entriesUrl)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data && data.entries && data.entries.length > 0) {
+            const cover: DiaryPageData = {
+              id: "user-diary-cover",
               pageNumber: 0,
               isCover: true,
-              title: "My Personal Journal",
+              title: data.entries[0]?.diaryTitle || activeDiaryTitle,
               content: "",
-            },
-            {
-              id: "fresh-diary-p1",
-              pageNumber: 1,
-              title: "A Blank Canvas",
-              content: "This volume has not been penned yet.\n\nClick '+ Write' in the top corner to compose your first reflection and watch your handwriting appear.",
-              date: "Today",
-              dayOfWeek: "New Journal",
-              mood: "hopeful",
-              ink: "midnight",
-              paperStyle: "lined",
-            },
-          ]);
-        }
-      })
-      .catch((err) => console.error("Error loading user entries:", err));
-  }, [isSignedIn, isLoaded]);
+            };
+
+            const realPages: DiaryPageData[] = [];
+            let currentFolioNumber = 1;
+
+            data.entries.forEach((e: any) => {
+              const d = new Date(e.date);
+              const dateFormatted = d.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+              const dayOfWeek = d.toLocaleDateString("en-US", { weekday: "long" });
+
+              // Automatically split entry when full at 500 characters so each page flips cleanly
+              const chunks = paginateContent(e.content || "", 500);
+
+              chunks.forEach((chunk, chunkIndex) => {
+                realPages.push({
+                  id: `${e.id}-p${chunkIndex + 1}`,
+                  entryId: e.id,
+                  pageNumber: currentFolioNumber++,
+                  title: chunkIndex === 0 ? e.title : `${e.title} (cont.)`,
+                  content: chunk,
+                  blocks: chunkIndex === 0 ? e.blocks : undefined,
+                  date: dateFormatted,
+                  dayOfWeek: dayOfWeek,
+                  mood: chunkIndex === 0 ? e.mood : undefined,
+                  ink: "midnight",
+                  paperStyle: "lined",
+                });
+              });
+            });
+
+            setPages([cover, ...realPages]);
+          } else if (isSignedIn) {
+            // Fresh signed-in user with no entries yet
+            setPages([
+              {
+                id: "fresh-diary-cover",
+                pageNumber: 0,
+                isCover: true,
+                title: activeDiaryTitle,
+                content: "",
+              },
+              {
+                id: "fresh-diary-p1",
+                pageNumber: 1,
+                title: "A Blank Canvas",
+                content: "This volume has not been penned yet.\n\nClick '+ Write' in the top corner to compose your first reflection and watch your handwriting appear.",
+                date: "Today",
+                dayOfWeek: "New Journal",
+                mood: "hopeful",
+                ink: "midnight",
+                paperStyle: "lined",
+              },
+            ]);
+          }
+        })
+        .catch((err) => console.error("Error loading user entries:", err));
+    });
+  }, [isSignedIn, isLoaded, diaryIdParam]);
 
   const handleDeletePage = (page: DiaryPageData) => {
     setPageToDelete(page);
@@ -136,6 +159,7 @@ export default function DiaryDemoPage() {
         setPages((prev) => prev.filter((p) => p.id !== pageToDelete.id));
       }
       setPageToDelete(null);
+      window.dispatchEvent(new CustomEvent("diary-data-changed"));
     } catch (err) {
       console.error("Failed to delete page:", err);
     } finally {
@@ -193,7 +217,7 @@ export default function DiaryDemoPage() {
           </div>
 
           <Link
-            href="/editor/demo"
+            href={diaryIdParam ? `/editor/demo?diaryId=${diaryIdParam}` : "/editor/demo"}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[38px] rounded-xl bg-[#D8B97C] hover:bg-[#E5C78B] text-[#24160C] text-xs font-medium transition-colors shadow-xs active:scale-95 whitespace-nowrap"
           >
             <span>+ Write</span>
@@ -249,5 +273,19 @@ export default function DiaryDemoPage() {
         <span>Digital Diary • Crafted to feel like authentic pen on paper</span>
       </footer>
     </div>
+  );
+}
+
+export default function DiaryDemoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#2A1D16] text-[#FAF5ED] flex items-center justify-center">
+          <span className="font-serif text-sm text-[#D8B97C]">Opening journal...</span>
+        </div>
+      }
+    >
+      <DiaryDemoContent />
+    </Suspense>
   );
 }
