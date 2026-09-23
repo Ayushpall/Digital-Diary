@@ -2,8 +2,7 @@ import { clerkMiddleware } from '@clerk/nextjs/server';
 
 export default clerkMiddleware(
   () => {
-    // Intentionally empty.
-    // debug:true will tell us whether Clerk middleware actually runs.
+    // Debug middleware execution
   },
   { debug: true }
 );
