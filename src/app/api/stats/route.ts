@@ -75,26 +75,54 @@ export async function GET() {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [totalDiaries, userEntries, entriesThisMonth, favoriteCount] =
-      await Promise.all([
-        prisma.diary.count({ where: { userId } }),
-        prisma.entry.findMany({
-          where: { userId },
-          select: { content: true, date: true },
-        }),
-        prisma.entry.count({
-          where: {
-            userId,
-            date: { gte: startOfMonth },
-          },
-        }),
-        prisma.entry.count({
-          where: {
-            userId,
-            isFavorite: true,
-          },
-        }),
-      ]);
+    const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const sevenDaysLater = new Date(todayUtc.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalDiaries,
+      userEntries,
+      entriesThisMonth,
+      favoriteCount,
+      activeHabitsCount,
+      todayCompletionsCount,
+      studyTasksDue,
+      upcomingExamsCount,
+    ] = await Promise.all([
+      prisma.diary.count({ where: { userId } }),
+      prisma.entry.findMany({
+        where: { userId },
+        select: { content: true, date: true },
+      }),
+      prisma.entry.count({
+        where: {
+          userId,
+          date: { gte: startOfMonth },
+        },
+      }),
+      prisma.entry.count({
+        where: {
+          userId,
+          isFavorite: true,
+        },
+      }),
+      prisma.habit.count({
+        where: { userId, isActive: true },
+      }),
+      prisma.habitCompletion.count({
+        where: { userId, completedDate: todayUtc },
+      }),
+      prisma.studyTask.count({
+        where: { userId, status: { not: "Completed" } },
+      }),
+      prisma.studyTask.count({
+        where: {
+          userId,
+          type: "Exam",
+          status: { not: "Completed" },
+          dueDate: { gte: todayUtc, lte: sevenDaysLater },
+        },
+      }),
+    ]);
 
     const totalEntries = userEntries.length;
 
@@ -124,6 +152,16 @@ export async function GET() {
         entriesThisMonth,
         favoriteCount,
         streakDays,
+        habitsSummary: {
+          completed: todayCompletionsCount,
+          total: activeHabitsCount,
+          percentage:
+            activeHabitsCount > 0 ? Math.round((todayCompletionsCount / activeHabitsCount) * 100) : 0,
+        },
+        studySummary: {
+          tasksDue: studyTasksDue,
+          upcomingExams: upcomingExamsCount,
+        },
       },
     });
   } catch (error) {

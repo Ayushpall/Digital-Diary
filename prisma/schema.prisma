@@ -23,11 +23,16 @@ model User {
   name      String?
   imageUrl  String?
   tier      String   @default("free") // "free" | "pro"
-  diaries   Diary[]
-  entries   Entry[]
-  tags      Tag[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  diaries          Diary[]
+  entries          Entry[]
+  tags             Tag[]
+  habits           Habit[]
+  habitCompletions HabitCompletion[]
+  subjects         Subject[]
+  studyTasks       StudyTask[]
+  studySessions    StudySession[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // Multi-tenant Diary (Journal Volume)
@@ -83,4 +88,104 @@ model Tag {
 
   @@unique([userId, name])
   @@index([userId])
+}
+
+// Multi-tenant Habit Tracker
+model Habit {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  icon        String?           @default("✨")
+  category    String            @default("General")
+  frequency   String            @default("daily") // "daily" | "weekly" | "monthly"
+  targetCount Int               @default(1)
+  startDate   DateTime          @default(now())
+  isActive    Boolean           @default(true)
+  completions HabitCompletion[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([frequency])
+}
+
+// Multi-tenant Habit Completion record
+model HabitCompletion {
+  id            String   @id @default(cuid())
+  habitId       String
+  habit         Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completedDate DateTime
+  count         Int      @default(1)
+  createdAt     DateTime @default(now())
+
+  @@unique([habitId, completedDate])
+  @@index([userId])
+  @@index([habitId])
+  @@index([completedDate])
+}
+
+// Multi-tenant Study Subject
+model Subject {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  icon        String?        @default("📚")
+  color       String?        @default("#8E6945")
+  description String?
+  tasks       StudyTask[]
+  sessions    StudySession[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+// Multi-tenant Study Task & Assignment
+model StudyTask {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId        String?
+  subject          Subject?      @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  title            String
+  description      String?
+  type             String        @default("Assignment") // Assignment | Exam | Quiz | Project | Revision | Reading | Study Session | Other
+  dueDate          DateTime
+  priority         String        @default("Medium") // Low | Medium | High
+  status           String        @default("Not Started") // Not Started | In Progress | Completed
+  estimatedMinutes Int?          @default(30)
+  completedAt      DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([subjectId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+// Multi-tenant Study Session
+model StudySession {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId       String?
+  subject         Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  scheduledDate   DateTime
+  startTime       String?
+  durationMinutes Int      @default(60)
+  notes           String?
+  completed       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([subjectId])
+  @@index([scheduledDate])
 }

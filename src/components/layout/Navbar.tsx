@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { BookOpen, Feather, Menu, X } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
@@ -11,7 +12,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 backdrop-blur-md bg-[#F8F4EC]/90 border-b border-[#E8DFD1]/80 transition-all">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a href="#" className="flex items-center gap-3 group" aria-label="Digital Diary Home">
+        <Link href="/" className="flex items-center gap-3 group" aria-label="Digital Diary Home">
           <div className="w-10 h-10 rounded-lg bg-[#3A291E] flex items-center justify-center text-[#F5EFEB] shadow-sm border border-[#523C2D] group-hover:scale-105 transition-transform duration-200">
             <Feather className="w-5 h-5 text-[#E6C687]" />
           </div>
@@ -23,22 +24,22 @@ export function Navbar() {
               Handwritten Journal
             </span>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#615246]" aria-label="Main Navigation">
-          <a
-            href="#hero"
+          <Link
+            href="/"
             className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
           >
             Home
-          </a>
-          <a
-            href="#features"
+          </Link>
+          <Link
+            href="/features"
             className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
           >
             Features
-          </a>
+          </Link>
           <a
             href="#how-it-works"
             className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
@@ -88,20 +89,20 @@ export function Navbar() {
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden px-4 pt-2 pb-6 bg-[#F8F4EC] border-b border-[#E8DFD1] space-y-3">
-          <a
-            href="#hero"
+          <Link
+            href="/"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-[#4D3F34] hover:bg-[#EFE6D6]"
           >
             Home
-          </a>
-          <a
-            href="#features"
+          </Link>
+          <Link
+            href="/features"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-[#4D3F34] hover:bg-[#EFE6D6]"
           >
             Features
-          </a>
+          </Link>
           <a
             href="#how-it-works"
             onClick={() => setMobileMenuOpen(false)}

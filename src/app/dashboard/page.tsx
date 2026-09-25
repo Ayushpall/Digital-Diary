@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { QuickActions } from "@/components/dashboard/QuickActions";
@@ -19,7 +20,6 @@ import {
   Check,
   Trash2,
   Palette,
-  Feather,
   AlertTriangle,
   CheckCircle2,
   Calendar,
@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const {
     diaries,
     recentEntries,
@@ -95,6 +96,12 @@ export default function DashboardPage() {
         return;
       case "calendar":
         window.location.href = "/calendar";
+        return;
+      case "habit-tracker":
+        router.push("/features/habits");
+        return;
+      case "study-planner":
+        router.push("/features/study-planner");
         return;
       case "search-memories":
         window.location.href = "/search";
@@ -372,68 +379,6 @@ export default function DashboardPage() {
                           )}
                         </button>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Classic Bookbinding Leather Swatches */}
-            <div>
-              <h3 className="font-serif text-sm font-semibold uppercase tracking-wider text-[#685341] mb-3 flex items-center gap-2">
-                <Feather className="w-4 h-4 text-[#B89360]" />
-                <span>Classic Bookbinding Leathers</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {COVER_THEMES.filter((t) => t.category === "classic").map((theme) => {
-                  const isActive = primaryDiary?.coverColor === theme.id;
-                  return (
-                    <div
-                      key={theme.id}
-                      className={`group rounded-2xl overflow-hidden bg-[#FAF6EE] border-2 transition-all duration-300 shadow-xs hover:shadow-lg p-4 flex flex-col justify-between ${
-                        isActive
-                          ? "border-[#B89360] ring-2 ring-[#B89360]/30 shadow-md"
-                          : "border-[#DDD0BC] hover:border-[#8E6945]"
-                      }`}
-                    >
-                      <div>
-                        {/* Leather texture block */}
-                        <div className={`h-24 rounded-xl ${theme.bgColor} border ${theme.borderColor} shadow-inner mb-3 relative overflow-hidden flex items-center justify-center`}>
-                          <div className="absolute inset-2 border border-dashed border-[#D8B97C]/30 rounded-lg pointer-events-none" />
-                          <div className="text-xs font-serif italic text-[#FAF5ED]/80 font-medium">
-                            {theme.name}
-                          </div>
-                        </div>
-                        <h4 className="font-serif text-sm font-medium text-[#261A13] mb-1">
-                          {theme.name}
-                        </h4>
-                        <p className="text-[11px] text-[#786657] font-light leading-relaxed mb-3">
-                          {theme.subtitle}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleApplyCoverTheme(theme.id as DiaryCoverStyle)}
-                        disabled={isActive}
-                        className={`w-full py-2 px-3 rounded-xl text-xs font-serif font-medium transition-all shadow-2xs flex items-center justify-center gap-1.5 ${
-                          isActive
-                            ? "bg-[#EFE5D5] text-[#7C6958] cursor-default border border-[#DDD0BC]"
-                            : "bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] border border-[#483324] active:scale-98"
-                        }`}
-                      >
-                        {isActive ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-[#B89360]" />
-                            <span>Current Cover</span>
-                          </>
-                        ) : (
-                          <>
-                            <Palette className="w-3.5 h-3.5 text-[#E5C78B]" />
-                            <span>Apply Leather</span>
-                          </>
-                        )}
-                      </button>
                     </div>
                   );
                 })}

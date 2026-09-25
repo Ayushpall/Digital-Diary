@@ -34,4 +34,13 @@ export interface DiaryStatsData {
   streakDays: number;
   pagesWritten: number;
   wordsWritten: number;
+  habitsSummary?: {
+    completed: number;
+    total: number;
+    percentage: number;
+  };
+  studySummary?: {
+    tasksDue: number;
+    upcomingExams: number;
+  };
 }

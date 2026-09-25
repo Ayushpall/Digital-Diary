@@ -15,7 +15,8 @@ import {
   Moon, 
   LogOut,
   ChevronRight,
-  X
+  X,
+  Sparkles
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -61,10 +62,11 @@ export function DashboardSidebar({
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, href: "/dashboard" },
-    { id: "diaries", label: "My Diaries", icon: BookOpen, href: "#diaries-section" },
+    { id: "diaries", label: "My Diaries", icon: BookOpen, href: "/dashboard#diaries-section" },
     { id: "calendar", label: "Calendar", icon: CalendarIcon, href: "/calendar" },
     { id: "search", label: "Search", icon: Search, href: "/search" },
-    { id: "themes", label: "Cover Themes", icon: Palette, href: "#themes-section" },
+    { id: "features", label: "Features", icon: Sparkles, href: "/features" },
+    { id: "themes", label: "Cover Themes", icon: Palette, href: "/dashboard#themes-section" },
   ];
 
   const handleNavClick = (id: string) => {

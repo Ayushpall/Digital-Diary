@@ -113,6 +113,8 @@ export function useDiaryData() {
             streakDays: data.stats.streakDays ?? 0,
             pagesWritten: data.stats.pagesWritten ?? data.stats.totalPages ?? 0,
             wordsWritten: data.stats.wordsWritten ?? ((data.stats.totalEntries ?? 0) * 140),
+            habitsSummary: data.stats.habitsSummary,
+            studySummary: data.stats.studySummary,
           });
         }
       }

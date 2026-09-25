@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PenTool, BookOpen, Calendar, Search, ArrowUpRight } from "lucide-react";
+import { PenTool, BookOpen, Calendar, Search, ArrowUpRight, CheckCircle2, GraduationCap } from "lucide-react";
 
 interface QuickActionsProps {
   onActionClick?: (actionId: string) => void;
@@ -20,7 +20,7 @@ export function QuickActions({ onActionClick }: QuickActionsProps) {
     {
       id: "open-diary",
       title: "Open Diary",
-      subtitle: "Flip through your active volume",
+      subtitle: "Flip through your volume",
       icon: BookOpen,
       accent: "bg-[#E8DCB8] text-[#38261A]",
       border: "border-[#D5C6A0]",
@@ -34,9 +34,25 @@ export function QuickActions({ onActionClick }: QuickActionsProps) {
       border: "border-[#D4C8B4]",
     },
     {
+      id: "habit-tracker",
+      title: "Habit Tracker",
+      subtitle: "Build routines & streaks",
+      icon: CheckCircle2,
+      accent: "bg-[#EAE2D2] text-[#3D2C1F]",
+      border: "border-[#D6C7AE]",
+    },
+    {
+      id: "study-planner",
+      title: "Study Planner",
+      subtitle: "Subjects, tasks & sessions",
+      icon: GraduationCap,
+      accent: "bg-[#E6DEC9] text-[#362518]",
+      border: "border-[#D2C3A8]",
+    },
+    {
       id: "search-memories",
       title: "Search Memories",
-      subtitle: "Find thoughts & past reflections",
+      subtitle: "Find past reflections",
       icon: Search,
       accent: "bg-[#EAE0CF] text-[#4E3929]",
       border: "border-[#D8C7B0]",
@@ -54,7 +70,7 @@ export function QuickActions({ onActionClick }: QuickActionsProps) {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         {actions.map((act) => {
           const Icon = act.icon;
           return (
