@@ -15,7 +15,7 @@ export function Footer() {
             </div>
             <div>
               <span className="font-serif text-xl text-[#FAF5EC] block">Digital Diary</span>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#8A7869] block">
+              <span className="text-[10px] uppercase font-mono tracking-widest text-[#B8A798] block">
                 Virtual Handwritten Notebook
               </span>
             </div>
@@ -26,23 +26,23 @@ export function Footer() {
             <p className="font-serif italic text-sm text-[#DFD3C4]">
               "The palest ink is better than the best memory."
             </p>
-            <span className="text-[11px] text-[#7A6A5C] font-mono block mt-1">
+            <span className="text-[11px] text-[#A89788] font-mono block mt-1">
               — Chinese Proverb
             </span>
           </div>
         </div>
 
         {/* Bottom Subfooter */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#806F61]">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#B3A293]">
           <p>© {new Date().getFullYear()} Digital Diary. Built for thoughtful minds.</p>
-          <div className="flex items-center gap-6">
-            <a href="#hero" className="hover:text-[#EDE3D4] transition-colors">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <a href="#hero" className="hover:text-[#EDE3D4] transition-colors py-2.5 px-2 inline-flex items-center min-h-[44px]">
               Back to Top
             </a>
-            <a href="#features" className="hover:text-[#EDE3D4] transition-colors">
+            <a href="#features" className="hover:text-[#EDE3D4] transition-colors py-2.5 px-2 inline-flex items-center min-h-[44px]">
               Features
             </a>
-            <a href="#privacy" className="hover:text-[#EDE3D4] transition-colors">
+            <a href="#privacy" className="hover:text-[#EDE3D4] transition-colors py-2.5 px-2 inline-flex items-center min-h-[44px]">
               Privacy
             </a>
           </div>

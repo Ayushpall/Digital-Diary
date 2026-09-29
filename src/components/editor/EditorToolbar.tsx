@@ -78,10 +78,11 @@ export function EditorToolbar({
               <button
                 key={size.id}
                 onClick={() => onUpdateSettings({ fontSize: size.id })}
-                className={`px-2 py-1 rounded-lg text-xs font-mono transition-colors ${settings.fontSize === size.id
+                className={`px-2.5 py-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-xs font-mono transition-colors ${settings.fontSize === size.id
                   ? "bg-[#38261A] text-[#FAF5ED] font-bold"
                   : "text-[#635142] hover:bg-[#EFE5D5]"
                   }`}
+                aria-label={`Font size ${size.id}`}
                 title={`Font size: ${size.id}`}
               >
                 {size.label}
@@ -95,10 +96,11 @@ export function EditorToolbar({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onFormat ? onFormat("justifyLeft") : onUpdateSettings({ textAlign: "left" })}
-              className={`p-1.5 rounded-lg transition-colors ${textAlign === "left"
+              className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors ${textAlign === "left"
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
+              aria-label="Align Left"
               title="Align Left"
             >
               <AlignLeft className="w-4 h-4" />
@@ -107,10 +109,11 @@ export function EditorToolbar({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onFormat ? onFormat("justifyCenter") : onUpdateSettings({ textAlign: "center" })}
-              className={`p-1.5 rounded-lg transition-colors ${textAlign === "center"
+              className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors ${textAlign === "center"
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
+              aria-label="Align Center"
               title="Align Center"
             >
               <AlignCenter className="w-4 h-4" />
@@ -119,10 +122,11 @@ export function EditorToolbar({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onFormat ? onFormat("justifyRight") : onUpdateSettings({ textAlign: "right" })}
-              className={`p-1.5 rounded-lg transition-colors ${textAlign === "right"
+              className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors ${textAlign === "right"
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
+              aria-label="Align Right"
               title="Align Right"
             >
               <AlignRight className="w-4 h-4" />
@@ -135,10 +139,11 @@ export function EditorToolbar({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onFormat ? onFormat("bold") : onUpdateSettings({ isBold: !settings.isBold })}
-              className={`p-1.5 rounded-lg transition-colors ${isBold
+              className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors ${isBold
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
+              aria-label="Bold"
               title="Bold"
             >
               <Bold className="w-4 h-4" />
@@ -147,10 +152,11 @@ export function EditorToolbar({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onFormat ? onFormat("italic") : onUpdateSettings({ isItalic: !settings.isItalic })}
-              className={`p-1.5 rounded-lg transition-colors ${isItalic
+              className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors ${isItalic
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
+              aria-label="Italic"
               title="Italic"
             >
               <Italic className="w-4 h-4" />
@@ -159,10 +165,11 @@ export function EditorToolbar({
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onFormat ? onFormat("underline") : onUpdateSettings({ isUnderline: !settings.isUnderline })}
-              className={`p-1.5 rounded-lg transition-colors ${isUnderline
+              className={`p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg transition-colors ${isUnderline
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
+              aria-label="Underline"
               title="Underline"
             >
               <Underline className="w-4 h-4" />
@@ -173,7 +180,7 @@ export function EditorToolbar({
         {/* Right Toolbar Cluster: Autosave status & Save Button */}
         <div className="flex items-center gap-3 ml-auto">
           {/* Autosave Status */}
-          <div className="flex items-center gap-1.5 text-xs font-serif italic text-[#7C6958]">
+          <div className="flex items-center gap-1.5 text-xs font-serif italic text-[#685545]">
             {saveStatus === "saving" && (
               <>
                 <span className="w-2 h-2 rounded-full bg-[#D4A137] animate-pulse" />
@@ -203,7 +210,7 @@ export function EditorToolbar({
           {/* Save Action Button */}
           <button
             onClick={onSave}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#342419] hover:bg-[#483424] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#342419] hover:bg-[#483424] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
           >
             <Save className="w-3.5 h-3.5 text-[#E5C78B]" />
             <span>Save Entry</span>

@@ -65,7 +65,7 @@ export function QuickActions({ onActionClick }: QuickActionsProps) {
         <h2 className="font-serif text-xl sm:text-2xl text-[#261A13] font-normal">
           Quick Actions
         </h2>
-        <span className="text-xs font-serif italic text-[#8B7868]">
+        <span className="text-xs font-serif italic text-[#6A5747]">
           Touch or click to begin
         </span>
       </div>

@@ -20,24 +20,29 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
 
   return (
     <div className="flex items-center gap-1.5 bg-[#FAF6EE] p-1.5 rounded-xl border border-[#DECDB8] shadow-2xs">
-      <div className="pl-1 pr-1 text-[#8C7A6B] hidden sm:flex items-center gap-1 text-xs">
+      <div className="pl-1 pr-1 text-[#685545] hidden sm:flex items-center gap-1 text-xs">
         <Palette className="w-3.5 h-3.5 text-[#B89360]" />
         <span className="font-serif italic">Ink:</span>
       </div>
-      <div className="flex items-center gap-1.5 px-1">
+      <div className="flex items-center gap-1 px-0.5">
         {inks.map((ink) => {
           const isSelected = value === ink.id;
           return (
             <button
               key={ink.id}
               onClick={() => onChange(ink.id)}
+              aria-label={ink.name}
               title={ink.name}
-              className={`w-5 h-5 rounded-full ${ink.hex} border border-[#DDD0BC] transition-transform ${
-                isSelected
-                  ? "scale-125 ring-2 ring-[#B89360] ring-offset-2 ring-offset-[#FAF6EE]"
-                  : "opacity-75 hover:opacity-100 hover:scale-110"
-              }`}
-            />
+              className="p-1 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg hover:bg-[#EFE5D5] transition-colors"
+            >
+              <span
+                className={`w-5 h-5 rounded-full ${ink.hex} border border-[#DDD0BC] transition-transform ${
+                  isSelected
+                    ? "scale-125 ring-2 ring-[#B89360] ring-offset-2 ring-offset-[#FAF6EE]"
+                    : "opacity-75 hover:opacity-100 hover:scale-110"
+                }`}
+              />
+            </button>
           );
         })}
       </div>

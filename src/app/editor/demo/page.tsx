@@ -455,7 +455,7 @@ function EditorDemoContent() {
         <div className="flex items-center gap-3">
           <Link
             href="/diary/demo"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FAF5ED] hover:bg-[#EAE0D0] text-[#3D2C1F] border border-[#D8C7B0] text-xs font-serif transition-colors shadow-2xs"
+            className="inline-flex items-center gap-2 px-3 py-1.5 min-h-[44px] rounded-xl bg-[#FAF5ED] hover:bg-[#EAE0D0] text-[#3D2C1F] border border-[#D8C7B0] text-xs font-serif transition-colors shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#B89360]" />
             <span>Back to Diary</span>
@@ -465,16 +465,16 @@ function EditorDemoContent() {
             <div className="w-7 h-7 rounded-lg bg-[#38261A] flex items-center justify-center text-[#E5C78B]">
               <Feather className="w-3.5 h-3.5" />
             </div>
-            <span className="font-serif text-base text-[#281B13] font-normal">
+            <h1 className="font-serif text-base text-[#281B13] font-normal">
               Creative Diary Studio
-            </span>
+            </h1>
           </div>
         </div>
 
         {/* Center: Mood Selector & Date Indicator */}
         <div className="flex items-center gap-3">
           <MoodSelector selectedMood={mood} onSelectMood={setMood} />
-          <div className="hidden md:flex items-center gap-1.5 text-xs font-serif italic text-[#786657] border-l border-[#DECDB8] pl-3">
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-serif italic text-[#685545] border-l border-[#DECDB8] pl-3">
             <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
             <span className="font-medium text-[#3A291D]">{date}</span>
           </div>
@@ -484,7 +484,7 @@ function EditorDemoContent() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard"
-            className="hidden md:inline-flex text-xs font-serif text-[#786657] hover:text-[#38261A] px-2.5 py-1.5"
+            className="hidden md:inline-flex items-center text-xs font-serif text-[#685545] hover:text-[#38261A] px-2.5 py-1.5 min-h-[44px]"
           >
             Dashboard
           </Link>
@@ -493,7 +493,7 @@ function EditorDemoContent() {
             type="button"
             onClick={() => setShowDeleteModal(true)}
             title="Delete this page"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF0ED] hover:bg-[#8B261E] text-[#8B261E] hover:text-[#FAF5ED] border border-[#E8C5BE] hover:border-[#8B261E] transition-all shadow-2xs text-xs font-serif active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-[#FAF0ED] hover:bg-[#8B261E] text-[#8B261E] hover:text-[#FAF5ED] border border-[#E8C5BE] hover:border-[#8B261E] transition-all shadow-2xs text-xs font-serif active:scale-95"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Delete</span>
@@ -501,7 +501,7 @@ function EditorDemoContent() {
 
           <button
             onClick={handleManualSave}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
           >
             <Save className="w-3.5 h-3.5 text-[#E5C78B]" />
             <span>Save</span>
@@ -611,7 +611,7 @@ function EditorDemoContent() {
               </div>
 
               {blocks.length > 0 && (
-                <span className="text-[11px] font-mono text-[#8C7A6B]">
+                <span className="text-[11px] font-mono text-[#685545]">
                   {blocks.length} {blocks.length === 1 ? "element" : "elements"} attached
                 </span>
               )}
@@ -690,7 +690,8 @@ function EditorDemoContent() {
                       }
                     }}
                     disabled={previewPageIndex === 0}
-                    className="p-1 rounded hover:bg-[#E2D5BF] disabled:opacity-30 transition-colors"
+                    className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded hover:bg-[#E2D5BF] disabled:opacity-30 transition-colors"
+                    aria-label="Previous page"
                     title="Previous page"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
@@ -706,7 +707,8 @@ function EditorDemoContent() {
                       }
                     }}
                     disabled={previewPageIndex >= contentPages.length - 1}
-                    className="p-1 rounded hover:bg-[#E2D5BF] disabled:opacity-30 transition-colors"
+                    className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded hover:bg-[#E2D5BF] disabled:opacity-30 transition-colors"
+                    aria-label="Next page"
                     title="Next page"
                   >
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -744,7 +746,7 @@ function EditorDemoContent() {
               </PageFlip>
 
               {/* Bottom Page Footer with Folio Stamp */}
-              <div className="pt-4 border-t border-[#E8DEC9] mt-6 flex items-center justify-between text-xs text-[#8C7A6B] font-serif italic">
+              <div className="pt-4 border-t border-[#E8DEC9] mt-6 flex items-center justify-between text-xs text-[#685545] font-serif italic">
                 <span>
                   {contentPages.length > 1
                     ? `Page ${previewPageIndex + 1} of ${contentPages.length}`
@@ -760,12 +762,12 @@ function EditorDemoContent() {
       </main>
 
       {/* Status Bar */}
-      <footer className="bg-[#FAF6EE] border-t border-[#DECDB8] px-4 sm:px-6 py-2.5 text-xs text-[#827162] font-serif flex items-center justify-between">
+      <footer className="bg-[#FAF6EE] border-t border-[#DECDB8] px-4 sm:px-6 py-2.5 text-xs text-[#685545] font-serif flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#5D8A50]" />
           <span>Local Creative Session • Ready to record memories</span>
         </div>
-        <div className="hidden sm:block text-[11px] font-mono text-[#917E6E]">
+        <div className="hidden sm:block text-[11px] font-mono text-[#685545]">
           Attached: {blocks.length} elements • Mood: {mood}
         </div>
       </footer>
@@ -785,7 +787,8 @@ function EditorDemoContent() {
           <span>{toastMessage}</span>
           <button
             onClick={() => setShowSavedToast(false)}
-            className="ml-2 text-[#B8A695] hover:text-white"
+            className="ml-2 text-[#B8A695] hover:text-white p-1 min-w-[36px] min-h-[36px] inline-flex items-center justify-center"
+            aria-label="Close notification"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -796,9 +799,9 @@ function EditorDemoContent() {
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-[#FAF6EE] rounded-2xl border border-[#D5C6AC] shadow-2xl p-6 sm:p-7 max-w-sm w-full text-[#2C2016]">
-            <h3 className="font-serif text-xl font-medium mb-2 text-[#24160C]">
+            <h2 className="font-serif text-xl font-medium mb-2 text-[#24160C]">
               Discard This Entry?
-            </h3>
+            </h2>
             <p className="text-xs text-[#6B5A4B] font-light leading-relaxed mb-6">
               Are you sure you want to delete &ldquo;{title || "Untitled Entry"}&rdquo;? This page will be permanently removed from your digital diary collection.
             </p>
@@ -807,7 +810,7 @@ function EditorDemoContent() {
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
+                className="px-4 py-2 min-h-[44px] rounded-xl text-xs font-serif text-[#685648] hover:bg-[#EFE5D5] transition-colors"
               >
                 Cancel
               </button>
@@ -815,7 +818,7 @@ function EditorDemoContent() {
                 type="button"
                 onClick={handleDeleteEntry}
                 disabled={isDeleting}
-                className="px-4 py-2 rounded-xl bg-[#8B261E] hover:bg-[#A83228] text-[#FAF5ED] text-xs font-medium transition-colors shadow-xs"
+                className="px-4 py-2 min-h-[44px] rounded-xl bg-[#8B261E] hover:bg-[#A83228] text-[#FAF5ED] text-xs font-medium transition-colors shadow-xs"
               >
                 {isDeleting ? "Deleting..." : "Delete Permanently"}
               </button>

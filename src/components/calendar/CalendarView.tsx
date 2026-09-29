@@ -111,7 +111,7 @@ export function CalendarView({
       {/* Month Navigation Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-5 border-b border-[#DECDB8]">
         <div>
-          <span className="text-[10px] sm:text-[11px] font-mono tracking-widest uppercase text-[#8E7C6C] block">
+          <span className="text-[10px] sm:text-[11px] font-mono tracking-widest uppercase text-[#675545] block font-medium">
             Memory Calendar
           </span>
           <h2 className="font-serif text-xl sm:text-3xl text-[#261A13] font-normal tracking-tight">
@@ -124,7 +124,7 @@ export function CalendarView({
           <button
             onClick={onGoToday}
             aria-label="Return to today in calendar"
-            className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BE] text-[#423023] border border-[#DAC8B0] text-xs font-serif transition-colors shadow-2xs active:scale-95 touch-manipulation diary-focus"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BE] text-[#423023] border border-[#DAC8B0] text-xs font-serif transition-colors shadow-2xs active:scale-95 touch-manipulation diary-focus"
           >
             <RotateCcw className="w-3.5 h-3.5 text-[#B89360]" />
             <span>Today</span>
@@ -135,7 +135,7 @@ export function CalendarView({
             <button
               onClick={onPrevMonth}
               aria-label="Previous month"
-              className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg text-[#554232] hover:bg-[#FAF5ED] transition-colors active:scale-95 touch-manipulation diary-focus"
+              className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[#554232] hover:bg-[#FAF5ED] transition-colors active:scale-95 touch-manipulation diary-focus"
               title="Previous Month"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -143,7 +143,7 @@ export function CalendarView({
             <button
               onClick={onNextMonth}
               aria-label="Next month"
-              className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg text-[#554232] hover:bg-[#FAF5ED] transition-colors active:scale-95 touch-manipulation diary-focus"
+              className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[#554232] hover:bg-[#FAF5ED] transition-colors active:scale-95 touch-manipulation diary-focus"
               title="Next Month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -153,7 +153,7 @@ export function CalendarView({
       </div>
 
       {/* Weekday Names Header */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center pt-3 sm:pt-4 pb-2 text-[11px] sm:text-xs font-serif italic text-[#8A7868]">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center pt-3 sm:pt-4 pb-2 text-[11px] sm:text-xs font-serif italic text-[#675545] font-medium">
         {weekDays.map((wd) => (
           <div key={wd} className="py-1">
             {wd}

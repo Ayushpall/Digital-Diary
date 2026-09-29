@@ -247,7 +247,7 @@ export function DiaryBook({
                 {rightPage ? (
                   <DiaryPage page={rightPage} position="right" />
                 ) : (
-                  <div className="p-10 paper-pattern-lined h-full flex items-center justify-center text-xs font-serif italic text-[#A69482]">
+                  <div className="p-10 paper-pattern-lined h-full flex items-center justify-center text-xs font-serif italic text-[#6A5747]">
                     Blank leaf
                   </div>
                 )}
@@ -289,7 +289,7 @@ export function DiaryBook({
         <div className="md:hidden">
           <button
             onClick={handleMobilePrev}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#EFE5D5] text-[#463324] border border-[#D8C7B0] text-xs font-medium shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#EFE5D5] text-[#463324] border border-[#D8C7B0] text-xs font-medium shadow-2xs"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Prev</span>
@@ -297,7 +297,7 @@ export function DiaryBook({
         </div>
 
         {/* Jump / Flip hint */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {Array.from({ length: Math.ceil(totalPages / 2) }).map((_, i) => (
             <button
               key={i}
@@ -306,16 +306,22 @@ export function DiaryBook({
                 setPageIndex(i * 2);
               }}
               title={`Jump to page ${i * 2 + 1}`}
-              className={`w-2.5 h-2.5 rounded-full transition-all ${Math.floor(pageIndex / 2) === i
-                ? "bg-[#38261A] w-5"
-                : "bg-[#D8C8B2] hover:bg-[#B89E82]"
+              aria-label={`Jump to page ${i * 2 + 1}`}
+              className="p-2 min-w-[32px] min-h-[44px] flex items-center justify-center"
+            >
+              <span
+                className={`h-2.5 rounded-full transition-all ${
+                  Math.floor(pageIndex / 2) === i
+                    ? "bg-[#38261A] w-5"
+                    : "bg-[#D8C8B2] w-2.5 hover:bg-[#B89E82]"
                 }`}
-            />
+              />
+            </button>
           ))}
         </div>
 
         {/* Jump / Flip dots for Mobile (single page based) */}
-        <div className="md:hidden flex items-center gap-1.5" aria-label="Pages">
+        <div className="md:hidden flex items-center gap-0.5" aria-label="Pages">
           {Array.from({ length: totalPages }).map((_, i) => (
             <button
               key={i}
@@ -324,11 +330,16 @@ export function DiaryBook({
                 setPageIndex(i);
               }}
               aria-label={`Jump to page ${i + 1}`}
-              className={`h-2 rounded-full transition-all diary-focus ${pageIndex === i
-                ? "bg-[#38261A] w-4"
-                : "bg-[#D8C8B2] w-2 hover:bg-[#B89E82]"
+              className="p-1.5 min-w-[28px] min-h-[44px] flex items-center justify-center diary-focus"
+            >
+              <span
+                className={`h-2 rounded-full transition-all ${
+                  pageIndex === i
+                    ? "bg-[#38261A] w-4"
+                    : "bg-[#D8C8B2] w-2 hover:bg-[#B89E82]"
                 }`}
-            />
+              />
+            </button>
           ))}
         </div>
 
@@ -339,7 +350,7 @@ export function DiaryBook({
             disabled={!canGoNext}
             className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border transition-all text-xs font-medium shadow-2xs group ${canGoNext
               ? "bg-[#342419] text-[#FAF5ED] border-[#483324] hover:bg-[#483324]"
-              : "bg-[#EFE5D5] text-[#A69482] border-[#D8C7B0] cursor-not-allowed opacity-60"
+              : "bg-[#EFE5D5] text-[#7A695B] border-[#D8C7B0] cursor-not-allowed opacity-60"
               }`}
           >
             <span>Next Pages</span>
@@ -352,9 +363,9 @@ export function DiaryBook({
           <button
             onClick={handleMobileNext}
             disabled={pageIndex + 1 >= totalPages}
-            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-xs font-medium shadow-2xs ${pageIndex + 1 < totalPages
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl border text-xs font-medium shadow-2xs ${pageIndex + 1 < totalPages
               ? "bg-[#342419] text-[#FAF5ED] border-[#483324]"
-              : "bg-[#EFE5D5] text-[#A69482] border-[#D8C7B0] opacity-60"
+              : "bg-[#EFE5D5] text-[#7A695B] border-[#D8C7B0] opacity-60"
               }`}
           >
             <span>Next</span>

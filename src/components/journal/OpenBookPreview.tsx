@@ -63,19 +63,19 @@ export function OpenBookPreview({ interactive = true }: OpenBookPreviewProps) {
             <div className="relative z-10 pl-5 sm:pl-8">
               {/* Header Stamp */}
               <div className="flex items-center justify-between pb-3 border-b border-[#D8CABE]/50 mb-4">
-                <div className="flex items-center gap-2 text-xs font-serif italic text-[#877464]">
+                <div className="flex items-center gap-2 text-xs font-serif italic text-[#6A5747]">
                   <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
                   <span>Sunday, October 18</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-[#877464] font-mono">
+                <div className="flex items-center gap-1.5 text-xs text-[#6A5747] font-mono">
                   <span>Page 042</span>
                 </div>
               </div>
 
-              {/* Inscribed Page Title */}
-              <h3 className="font-serif text-2xl text-[#2F221B] tracking-tight mb-4 font-normal italic">
+              {/* Inscribed Page Title (visual preview styling, non-heading to maintain logical landing page hierarchy) */}
+              <p className="font-serif text-2xl text-[#2F221B] tracking-tight mb-4 font-normal italic">
                 Autumn Reflections
-              </h3>
+              </p>
 
               {/* Handwritten Left Page Text */}
               <div className={`handwriting-ink text-xl sm:text-2xl leading-8 ${inkStyles[activeInk].text} transition-colors duration-200`}>
@@ -89,7 +89,7 @@ export function OpenBookPreview({ interactive = true }: OpenBookPreviewProps) {
             </div>
 
             {/* Bottom Details */}
-            <div className="relative z-10 pl-5 sm:pl-8 pt-6 flex items-center justify-between text-xs text-[#8A7869] font-serif italic">
+            <div className="relative z-10 pl-5 sm:pl-8 pt-6 flex items-center justify-between text-xs text-[#6A5747] font-serif italic">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#C49E4F]" />
                 <span>Morning Journal</span>
@@ -108,21 +108,25 @@ export function OpenBookPreview({ interactive = true }: OpenBookPreviewProps) {
 
             <div className="relative z-10 pl-5 sm:pl-8 flex-1 flex flex-col">
               <div className="flex items-center justify-between pb-3 border-b border-[#D8CABE]/50 mb-3">
-                <div className="flex items-center gap-2 text-xs font-mono text-[#8C7B6D]">
+                <div className="flex items-center gap-2 text-xs font-mono text-[#6A5747]">
                   <PenTool className="w-3.5 h-3.5 text-[#B89360]" />
                   <span className="font-serif italic">Try typing below...</span>
                 </div>
                 {/* Live Ink Color Badges */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   {(["midnight", "carbon", "sepia"] as InkColor[]).map((color) => (
                     <button
                       key={color}
                       onClick={() => setActiveInk(color)}
-                      title={`Switch to ${inkStyles[color].label}`}
-                      className={`w-4 h-4 rounded-full ${inkStyles[color].bg} transition-transform ${
-                        activeInk === color ? "scale-125 ring-2 ring-[#B89360] ring-offset-1 ring-offset-[#FAF6ED]" : "opacity-70 hover:opacity-100"
-                      }`}
-                    />
+                      aria-label={`Switch to ${inkStyles[color].label}`}
+                      className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full hover:bg-[#EFE6D6] transition-colors"
+                    >
+                      <span
+                        className={`w-4 h-4 rounded-full ${inkStyles[color].bg} transition-transform ${
+                          activeInk === color ? "scale-125 ring-2 ring-[#B89360] ring-offset-1 ring-offset-[#FAF6ED]" : "opacity-70 hover:opacity-100"
+                        }`}
+                      />
+                    </button>
                   ))}
                 </div>
               </div>
@@ -147,22 +151,22 @@ export function OpenBookPreview({ interactive = true }: OpenBookPreviewProps) {
 
             {/* Interactive Live Typing Suggestion Chips */}
             <div className="relative z-10 pl-6 sm:pl-8 pt-4 border-t border-[#E2D6C5]/60 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-sans font-medium text-[#8F7D6D]">Add idea:</span>
+              <span className="text-[11px] font-sans font-medium text-[#6A5747]">Add idea:</span>
               <button
                 onClick={() => handleAppendThought("The evening dusk feels calm.")}
-                className="text-xs px-2.5 py-1 rounded-full bg-[#EFE6D6] hover:bg-[#E5DAC6] text-[#4F3E33] border border-[#DDD0BC] transition-colors"
+                className="text-xs px-3 py-1.5 min-h-[36px] inline-flex items-center rounded-full bg-[#EFE6D6] hover:bg-[#E5DAC6] text-[#4F3E33] border border-[#DDD0BC] transition-colors"
               >
                 + Evening dusk
               </button>
               <button
                 onClick={() => handleAppendThought("Grateful for quiet moments.")}
-                className="text-xs px-2.5 py-1 rounded-full bg-[#EFE6D6] hover:bg-[#E5DAC6] text-[#4F3E33] border border-[#DDD0BC] transition-colors"
+                className="text-xs px-3 py-1.5 min-h-[36px] inline-flex items-center rounded-full bg-[#EFE6D6] hover:bg-[#E5DAC6] text-[#4F3E33] border border-[#DDD0BC] transition-colors"
               >
                 + Gratitude
               </button>
               <button
                 onClick={() => setTypedText("")}
-                className="text-xs px-2 py-1 rounded-full text-[#9C5449] hover:bg-[#F3E7E4] ml-auto transition-colors"
+                className="text-xs px-3 py-1.5 min-h-[36px] inline-flex items-center rounded-full text-[#9C5449] hover:bg-[#F3E7E4] ml-auto transition-colors"
               >
                 Clear page
               </button>
@@ -177,7 +181,7 @@ export function OpenBookPreview({ interactive = true }: OpenBookPreviewProps) {
       </div>
 
       {/* Subtle Caption Underneath the Diary */}
-      <div className="mt-4 flex items-center justify-center gap-2 text-xs font-serif italic text-[#7C6C5E]">
+      <div className="mt-4 flex items-center justify-center gap-2 text-xs font-serif italic text-[#675749]">
         <CheckCircle2 className="w-3.5 h-3.5 text-[#738C5F]" />
         <span>Type anywhere on the right page — your keystrokes instantly adapt into natural handwriting ink.</span>
       </div>

@@ -40,7 +40,7 @@ export function HowItWorks() {
         
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#948171] block mb-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#6B5746] block mb-2 font-medium">
             The Journaling Flow
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl text-[#261A13] tracking-tight font-normal">
@@ -71,7 +71,7 @@ export function HowItWorks() {
                 </div>
 
                 <div>
-                  <span className="text-xs font-mono tracking-wider uppercase text-[#968270] block mb-1">
+                  <span className="text-xs font-mono tracking-wider uppercase text-[#6B5746] block mb-1 font-medium">
                     {step.stepTitle}
                   </span>
                   <h3 className="font-serif text-xl sm:text-2xl text-[#291D16] mb-3 font-normal">
@@ -94,7 +94,7 @@ export function HowItWorks() {
         <div className="mt-14 text-center">
           <a
             href="#editor-preview"
-            className="inline-flex items-center gap-2 text-sm font-medium text-[#643E23] hover:text-[#3B2212] transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#643E23] hover:text-[#3B2212] transition-colors py-2.5 px-3 min-h-[44px]"
           >
             <span>Preview the live writing editor</span>
             <ArrowRight className="w-4 h-4" />

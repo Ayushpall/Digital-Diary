@@ -48,7 +48,7 @@ export function DashboardHeader({
         {onOpenMobileMenu && (
           <button
             onClick={onOpenMobileMenu}
-            className="md:hidden mt-1 p-2 rounded-xl bg-[#EFE5D5] text-[#4A3728] border border-[#D8C7B0] hover:bg-[#E5DAC6] transition-colors"
+            className="md:hidden mt-1 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#EFE5D5] text-[#4A3728] border border-[#D8C7B0] hover:bg-[#E5DAC6] transition-colors"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />
@@ -56,7 +56,7 @@ export function DashboardHeader({
         )}
 
         <div>
-          <div className="flex items-center gap-2 text-xs font-serif italic text-[#887463] mb-1" suppressHydrationWarning>
+          <div className="flex items-center gap-2 text-xs font-serif italic text-[#6A5747] mb-1" suppressHydrationWarning>
             <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
             <span>{todayStr}</span>
           </div>

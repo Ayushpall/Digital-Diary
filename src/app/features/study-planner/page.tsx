@@ -473,7 +473,7 @@ export default function StudyPlannerPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/features"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#3D2C1F] border border-[#D8C7B0] text-xs font-serif transition-colors shadow-2xs"
+            className="inline-flex items-center gap-2 px-3 py-1.5 min-h-[44px] rounded-xl bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#3D2C1F] border border-[#D8C7B0] text-xs font-serif transition-colors shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#B89360]" />
             <span>Features</span>
@@ -487,7 +487,7 @@ export default function StudyPlannerPage() {
               <span className="font-serif text-base text-[#281B13] font-normal leading-tight block">
                 Study Planner
               </span>
-              <span className="text-[10px] text-[#8C7A6B] font-mono leading-tight block uppercase tracking-wider">
+              <span className="text-[10px] text-[#685545] font-mono leading-tight block uppercase tracking-wider">
                 Academic Knowledge Hub
               </span>
             </div>
@@ -501,7 +501,7 @@ export default function StudyPlannerPage() {
               setSessionSubjectId(subjects.length > 0 ? subjects[0].id : "");
               setSessionModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#422F22] border border-[#DAC9B1] text-xs font-serif transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#422F22] border border-[#DAC9B1] text-xs font-serif transition-colors"
           >
             <Clock className="w-3.5 h-3.5 text-[#B89360]" />
             <span className="hidden sm:inline">+ Study Session</span>
@@ -510,7 +510,7 @@ export default function StudyPlannerPage() {
 
           <button
             onClick={() => openTaskModal()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 min-h-[44px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
           >
             <Plus className="w-3.5 h-3.5 text-[#E5C78B]" />
             <span>+ Add Task</span>
@@ -526,7 +526,7 @@ export default function StudyPlannerPage() {
             <h1 className="font-serif text-3xl sm:text-4xl text-[#261A13] font-normal mb-1.5">
               Study Planner
             </h1>
-            <p className="font-serif italic text-sm sm:text-base text-[#7C6A5A]">
+            <p className="font-serif italic text-sm sm:text-base text-[#685545]">
               &ldquo;Plan today. Learn consistently.&rdquo;
             </p>
           </div>
@@ -535,7 +535,7 @@ export default function StudyPlannerPage() {
           <div className="inline-flex p-1 rounded-2xl bg-[#EAE0CF]/70 border border-[#D8C7B0] self-start sm:self-auto">
             <button
               onClick={() => setActiveTab("tasks")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 min-h-[36px] rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
                 activeTab === "tasks"
                   ? "bg-[#38261A] text-[#FAF5ED] shadow-xs font-medium"
                   : "text-[#5C4B3D] hover:text-[#2A1D15]"
@@ -546,7 +546,7 @@ export default function StudyPlannerPage() {
             </button>
             <button
               onClick={() => setActiveTab("calendar")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 min-h-[36px] rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
                 activeTab === "calendar"
                   ? "bg-[#38261A] text-[#FAF5ED] shadow-xs font-medium"
                   : "text-[#5C4B3D] hover:text-[#2A1D15]"
@@ -557,7 +557,7 @@ export default function StudyPlannerPage() {
             </button>
             <button
               onClick={() => setActiveTab("sessions")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 min-h-[36px] rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
                 activeTab === "sessions"
                   ? "bg-[#38261A] text-[#FAF5ED] shadow-xs font-medium"
                   : "text-[#5C4B3D] hover:text-[#2A1D15]"
@@ -568,7 +568,7 @@ export default function StudyPlannerPage() {
             </button>
             <button
               onClick={() => setActiveTab("subjects")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 min-h-[36px] rounded-xl text-xs font-serif transition-all flex items-center gap-1.5 ${
                 activeTab === "subjects"
                   ? "bg-[#38261A] text-[#FAF5ED] shadow-xs font-medium"
                   : "text-[#5C4B3D] hover:text-[#2A1D15]"
@@ -584,16 +584,16 @@ export default function StudyPlannerPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5 mb-8">
           {/* Card 1: Tasks Due */}
           <div className="p-5 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#8A7969] mb-2">
+            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#685545] mb-2">
               <span>Tasks Due</span>
               <Flag className="w-4 h-4 text-[#B89360]" />
             </div>
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="font-serif text-3xl text-[#241912]">{stats.tasksDue}</span>
-                <span className="text-xs font-serif italic text-[#7C6A5A]">remaining</span>
+                <span className="text-xs font-serif italic text-[#685545]">remaining</span>
               </div>
-              <p className="text-[11px] text-[#7C6A5A] font-light mt-1">
+              <p className="text-[11px] text-[#685545] font-light mt-1">
                 {stats.overdueTasks > 0 ? (
                   <span className="text-[#A84A3B] font-medium">{stats.overdueTasks} overdue</span>
                 ) : (
@@ -605,7 +605,7 @@ export default function StudyPlannerPage() {
 
           {/* Card 2: Completed */}
           <div className="p-5 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#8A7969] mb-2">
+            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#685545] mb-2">
               <span>Completed</span>
               <CheckCircle2 className="w-4 h-4 text-[#4A7352]" />
             </div>
@@ -616,7 +616,7 @@ export default function StudyPlannerPage() {
                   ({stats.completionPercentage}%)
                 </span>
               </div>
-              <p className="text-[11px] text-[#7C6A5A] font-light mt-1">
+              <p className="text-[11px] text-[#685545] font-light mt-1">
                 of {stats.totalTasks} total planned tasks
               </p>
             </div>
@@ -624,7 +624,7 @@ export default function StudyPlannerPage() {
 
           {/* Card 3: Study Time */}
           <div className="p-5 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#8A7969] mb-2">
+            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#685545] mb-2">
               <span>Study Time</span>
               <Clock className="w-4 h-4 text-[#3B5B84]" />
             </div>
@@ -633,9 +633,9 @@ export default function StudyPlannerPage() {
                 <span className="font-serif text-3xl text-[#241912]">
                   {stats.studyTimeFormatted}
                 </span>
-                <span className="text-xs font-serif italic text-[#7C6A5A]">logged</span>
+                <span className="text-xs font-serif italic text-[#685545]">logged</span>
               </div>
-              <p className="text-[11px] text-[#7C6A5A] font-light mt-1">
+              <p className="text-[11px] text-[#685545] font-light mt-1">
                 Completed focus time
               </p>
             </div>
@@ -643,16 +643,16 @@ export default function StudyPlannerPage() {
 
           {/* Card 4: Upcoming Deadlines */}
           <div className="p-5 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#8A7969] mb-2">
+            <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#685545] mb-2">
               <span>Upcoming Deadlines</span>
               <CalendarIcon className="w-4 h-4 text-[#C7603B]" />
             </div>
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="font-serif text-3xl text-[#241912]">{stats.upcomingDeadlines}</span>
-                <span className="text-xs font-serif italic text-[#7C6A5A]">next 7 days</span>
+                <span className="text-xs font-serif italic text-[#685545]">next 7 days</span>
               </div>
-              <p className="text-[11px] text-[#7C6A5A] font-light mt-1">
+              <p className="text-[11px] text-[#685545] font-light mt-1">
                 Assignments & revisions
               </p>
             </div>
@@ -664,42 +664,44 @@ export default function StudyPlannerPage() {
            ======================================================== */}
         {activeTab === "tasks" && (
           <div className="bg-[#FAF6EE] rounded-2xl border border-[#DECDB8] shadow-2xs p-5 sm:p-7">
+            <h2 className="sr-only">Study Tasks &amp; Deadlines</h2>
+
             {/* Filter Tabs Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-[#E8DEC9]">
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 <button
                   onClick={() => setTaskFilterTab("all")}
-                  className={`px-3 py-1 rounded-lg text-xs font-serif transition-colors ${
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-serif transition-colors ${
                     taskFilterTab === "all"
                       ? "bg-[#38261A] text-[#FAF5ED] font-medium"
-                      : "text-[#6C594A] hover:bg-[#EFE5D5]"
+                      : "text-[#5C4B3D] hover:bg-[#EFE5D5]"
                   }`}
                 >
                   All ({tasks.length})
                 </button>
                 <button
                   onClick={() => setTaskFilterTab("today")}
-                  className={`px-3 py-1 rounded-lg text-xs font-serif transition-colors ${
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-serif transition-colors ${
                     taskFilterTab === "today"
                       ? "bg-[#38261A] text-[#FAF5ED] font-medium"
-                      : "text-[#6C594A] hover:bg-[#EFE5D5]"
+                      : "text-[#5C4B3D] hover:bg-[#EFE5D5]"
                   }`}
                 >
                   Today
                 </button>
                 <button
                   onClick={() => setTaskFilterTab("upcoming")}
-                  className={`px-3 py-1 rounded-lg text-xs font-serif transition-colors ${
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-serif transition-colors ${
                     taskFilterTab === "upcoming"
                       ? "bg-[#38261A] text-[#FAF5ED] font-medium"
-                      : "text-[#6C594A] hover:bg-[#EFE5D5]"
+                      : "text-[#5C4B3D] hover:bg-[#EFE5D5]"
                   }`}
                 >
                   Upcoming
                 </button>
                 <button
                   onClick={() => setTaskFilterTab("overdue")}
-                  className={`px-3 py-1 rounded-lg text-xs font-serif transition-colors ${
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-serif transition-colors ${
                     taskFilterTab === "overdue"
                       ? "bg-[#A84A3B] text-white font-medium"
                       : "text-[#A84A3B] hover:bg-[#F7EBE8]"
@@ -709,7 +711,7 @@ export default function StudyPlannerPage() {
                 </button>
                 <button
                   onClick={() => setTaskFilterTab("completed")}
-                  className={`px-3 py-1 rounded-lg text-xs font-serif transition-colors ${
+                  className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-serif transition-colors ${
                     taskFilterTab === "completed"
                       ? "bg-[#4A7352] text-white font-medium"
                       : "text-[#4A7352] hover:bg-[#EDF5EF]"
@@ -721,7 +723,7 @@ export default function StudyPlannerPage() {
 
               <button
                 onClick={() => openTaskModal()}
-                className="text-xs font-serif text-[#B89360] hover:text-[#38261A] flex items-center gap-1 self-start sm:self-auto"
+                className="text-xs font-serif text-[#7A4B29] hover:text-[#38261A] flex items-center gap-1 self-start sm:self-auto min-h-[36px]"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>+ Add Task</span>
@@ -883,7 +885,9 @@ export default function StudyPlannerPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCalendarDate(new Date(calYear, calMonth - 1, 1))}
-                  className="p-1.5 rounded-lg border border-[#DDD0BC] bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#5C4B3D] transition-colors"
+                  className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg border border-[#DDD0BC] bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#5C4B3D] transition-colors"
+                  aria-label="Previous Month"
+                  title="Previous Month"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -892,13 +896,15 @@ export default function StudyPlannerPage() {
                 </span>
                 <button
                   onClick={() => setCalendarDate(new Date(calYear, calMonth + 1, 1))}
-                  className="p-1.5 rounded-lg border border-[#DDD0BC] bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#5C4B3D] transition-colors"
+                  className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg border border-[#DDD0BC] bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#5C4B3D] transition-colors"
+                  aria-label="Next Month"
+                  title="Next Month"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setCalendarDate(new Date())}
-                  className="px-2.5 py-1 rounded-lg text-xs font-serif bg-[#38261A] text-[#FAF5ED] hover:bg-[#483324] transition-colors"
+                  className="px-3 py-1.5 min-h-[36px] flex items-center justify-center rounded-lg text-xs font-serif bg-[#38261A] text-[#FAF5ED] hover:bg-[#483324] transition-colors"
                 >
                   Today
                 </button>
@@ -908,7 +914,7 @@ export default function StudyPlannerPage() {
             {/* Calendar Grid */}
             <div className="border border-[#DECDB8] rounded-xl overflow-hidden bg-[#FAF5ED]">
               {/* Day of Week Headers */}
-              <div className="grid grid-cols-7 border-b border-[#DECDB8] bg-[#F5EDE1] text-center text-xs font-mono text-[#7A695B] py-2">
+              <div className="grid grid-cols-7 border-b border-[#DECDB8] bg-[#F5EDE1] text-center text-xs font-mono text-[#685545] py-2">
                 <span>Sun</span>
                 <span>Mon</span>
                 <span>Tue</span>

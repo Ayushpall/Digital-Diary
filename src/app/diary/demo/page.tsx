@@ -179,7 +179,7 @@ function DiaryDemoContent() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-xl bg-[#362318] hover:bg-[#4A3223] text-[#DFD1BF] border border-[#523A2B] text-xs font-serif transition-colors shadow-xs active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-[#362318] hover:bg-[#4A3223] text-[#DFD1BF] border border-[#523A2B] text-xs font-serif transition-colors shadow-xs active:scale-95"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#D8B97C]" />
             <span>Dashboard</span>
@@ -187,7 +187,7 @@ function DiaryDemoContent() {
 
           <Link
             href="/"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[#A69382] hover:text-[#FAF5ED] text-xs font-serif transition-colors"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl text-[#DFD1BF] hover:text-[#FAF5ED] text-xs font-serif transition-colors"
           >
             <Home className="w-3.5 h-3.5" />
             <span>Landing</span>
@@ -200,10 +200,10 @@ function DiaryDemoContent() {
             <Feather className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
           <div>
-            <span className="font-serif text-sm sm:text-lg text-[#FAF5ED] font-normal tracking-tight block">
+            <h1 className="font-serif text-sm sm:text-lg text-[#FAF5ED] font-normal tracking-tight block">
               The Reading Room
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-[#A68F7B] font-mono block -mt-0.5 sm:-mt-1 uppercase tracking-wider hidden xs:block">
+            </h1>
+            <span className="text-[9px] sm:text-[10px] text-[#C9B7A3] font-mono block -mt-0.5 sm:-mt-1 uppercase tracking-wider hidden xs:block">
               Physical Simulation
             </span>
           </div>
@@ -218,7 +218,7 @@ function DiaryDemoContent() {
 
           <Link
             href={diaryIdParam ? `/editor/demo?diaryId=${diaryIdParam}` : "/editor/demo"}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[38px] rounded-xl bg-[#D8B97C] hover:bg-[#E5C78B] text-[#24160C] text-xs font-medium transition-colors shadow-xs active:scale-95 whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-[#D8B97C] hover:bg-[#E5C78B] text-[#24160C] text-xs font-medium transition-colors shadow-xs active:scale-95 whitespace-nowrap"
           >
             <span>+ Write</span>
           </Link>

@@ -54,7 +54,7 @@ export function DiaryStats({ stats }: DiaryStatsProps) {
         <h2 className="font-serif text-xl sm:text-2xl text-[#261A13] font-normal">
           Diary Statistics
         </h2>
-        <span className="text-xs font-serif italic text-[#8B7868]">
+        <span className="text-xs font-serif italic text-[#6A5747]">
           Quiet milestones along your journey
         </span>
       </div>
@@ -68,11 +68,11 @@ export function DiaryStats({ stats }: DiaryStatsProps) {
         >
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#8A7969]">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#685545] font-medium">
                 <CheckCircle2 className="w-4 h-4 text-[#4A7352]" />
                 <span>Habits Today</span>
               </div>
-              <span className="text-xs font-serif font-medium text-[#B89360] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+              <span className="text-xs font-serif font-medium text-[#7A4B29] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
                 Open Tracker <ArrowRight className="w-3 h-3" />
               </span>
             </div>
@@ -103,11 +103,11 @@ export function DiaryStats({ stats }: DiaryStatsProps) {
         >
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#8A7969]">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#685545] font-medium">
                 <GraduationCap className="w-4 h-4 text-[#8E6945]" />
                 <span>Study Planner</span>
               </div>
-              <span className="text-xs font-serif font-medium text-[#B89360] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+              <span className="text-xs font-serif font-medium text-[#7A4B29] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
                 Open Planner <ArrowRight className="w-3 h-3" />
               </span>
             </div>
@@ -115,7 +115,7 @@ export function DiaryStats({ stats }: DiaryStatsProps) {
               <span className="font-serif text-2xl sm:text-3xl text-[#241912] font-normal tracking-tight">
                 {stats.studySummary?.tasksDue ?? 0} {stats.studySummary?.tasksDue === 1 ? "task due" : "tasks due"}
               </span>
-              <span className="text-xs font-serif italic text-[#8C7A6B]">
+              <span className="text-xs font-serif italic text-[#6A5747]">
                 {stats.studySummary?.upcomingExams ?? 0} upcoming {(stats.studySummary?.upcomingExams === 1 ? "exam" : "exams")}
               </span>
             </div>
@@ -140,7 +140,7 @@ export function DiaryStats({ stats }: DiaryStatsProps) {
               </div>
 
               <div>
-                <span className="text-xs font-mono uppercase tracking-wider text-[#8A7969] block mb-2">
+                <span className="text-xs font-mono uppercase tracking-wider text-[#685545] block mb-2 font-medium">
                   {st.label}
                 </span>
                 <div className="flex items-baseline gap-2">

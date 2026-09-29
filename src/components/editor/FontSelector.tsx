@@ -18,7 +18,7 @@ export function FontSelector({ value, onChange }: FontSelectorProps) {
 
   return (
     <div className="flex items-center gap-1.5 bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs">
-      <div className="pl-2 pr-1 text-[#8C7A6B] hidden sm:flex items-center gap-1 text-xs">
+      <div className="pl-2 pr-1 text-[#685545] hidden sm:flex items-center gap-1 text-xs">
         <Type className="w-3.5 h-3.5 text-[#B89360]" />
         <span className="font-serif italic">Script:</span>
       </div>
@@ -32,7 +32,7 @@ export function FontSelector({ value, onChange }: FontSelectorProps) {
             key={f.id}
             onClick={() => onChange(f.id)}
             title={f.name}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-medium transition-all ${
               isSelected
                 ? "bg-[#38261A] text-[#FAF5ED] shadow-xs font-semibold"
                 : "text-[#5C4B3C] hover:bg-[#EFE5D5] hover:text-[#281A12]"

@@ -160,10 +160,10 @@ export default function CalendarPage() {
               <CalendarIcon className="w-3.5 h-3.5" />
             </div>
             <div>
-              <span className="font-serif text-base text-[#281B13] font-normal leading-tight block">
+              <h1 className="font-serif text-base text-[#281B13] font-normal leading-tight block">
                 Memory Calendar
-              </span>
-              <span className="text-[10px] text-[#8C7A6B] font-mono leading-tight block uppercase tracking-wider">
+              </h1>
+              <span className="text-[10px] text-[#685545] font-mono leading-tight block uppercase tracking-wider font-medium">
                 Digital Diary Timeline
               </span>
             </div>
@@ -174,7 +174,7 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/diary/demo"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#422F22] border border-[#DAC9B1] text-xs font-serif transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#422F22] border border-[#DAC9B1] text-xs font-serif transition-colors"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#B89360]" />
             <span className="hidden sm:inline">Reading Room</span>
@@ -182,7 +182,7 @@ export default function CalendarPage() {
 
           <Link
             href="/editor/demo"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
           >
             <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />
             <span>+ New Entry</span>

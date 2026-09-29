@@ -23,7 +23,7 @@ export default function Error({
 
       {/* Top Header */}
       <header className="w-full max-w-4xl flex items-center justify-between py-4">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 min-h-[44px]">
           <div className="w-8 h-8 rounded-lg bg-[#38261A] flex items-center justify-center text-[#E5C78B]">
             <Feather className="w-4 h-4" />
           </div>
@@ -52,13 +52,13 @@ export default function Error({
             </h1>
 
             <p className="handwriting-ink text-xl text-[#524134] leading-relaxed mb-8">
-              "An unexpected smudge occurred on this leaf. Don't worry — your thoughts and journal volumes remain intact."
+              &ldquo;An unexpected smudge occurred on this leaf. Don&apos;t worry &mdash; your thoughts and journal volumes remain intact.&rdquo;
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-[#E8DFC9]">
               <button
                 onClick={() => reset()}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] transition-all shadow-xs active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] transition-all shadow-xs active:scale-95"
               >
                 <RotateCcw className="w-4 h-4 text-[#E5C78B]" />
                 <span>Gently Retry Page</span>
@@ -66,7 +66,7 @@ export default function Error({
 
               <Link
                 href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BE] text-[#423023] border border-[#DAC8B0] text-xs font-serif transition-all active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BE] text-[#423023] border border-[#DAC8B0] text-xs font-serif transition-all active:scale-95"
               >
                 <Home className="w-4 h-4 text-[#B89360]" />
                 <span>Return to Dashboard</span>
@@ -77,7 +77,7 @@ export default function Error({
       </main>
 
       {/* Footer */}
-      <footer className="py-4 text-xs font-serif italic text-[#8E7D6D]">
+      <footer className="py-4 text-xs font-serif italic text-[#685545]">
         Digital Diary • Safe local journal environment
       </footer>
     </div>

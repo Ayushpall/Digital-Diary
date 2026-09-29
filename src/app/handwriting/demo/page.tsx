@@ -61,7 +61,7 @@ export default function HandwritingDemoPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/editor/demo"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#3D2C1F] border border-[#D8C7B0] text-xs font-serif transition-colors shadow-2xs"
+            className="inline-flex items-center gap-2 px-3 py-1.5 min-h-[44px] rounded-xl bg-[#FAF5ED] hover:bg-[#EFE5D5] text-[#3D2C1F] border border-[#D8C7B0] text-xs font-serif transition-colors shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#B89360]" />
             <span>Editor</span>
@@ -79,7 +79,7 @@ export default function HandwritingDemoPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard"
-            className="text-xs font-serif text-[#7A695A] hover:text-[#2A1D15] px-3 py-1.5"
+            className="inline-flex items-center text-xs font-serif text-[#685545] hover:text-[#2A1D15] px-3 py-1.5 min-h-[44px]"
           >
             Dashboard
           </Link>
@@ -94,7 +94,7 @@ export default function HandwritingDemoPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#DECDB8] pb-4">
             {/* Style Selector */}
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs font-serif italic text-[#7C6958]">
+              <span className="text-xs font-serif italic text-[#685545]">
                 Handwriting Style:
               </span>
               <HandwritingStyleSelector
@@ -105,41 +105,46 @@ export default function HandwritingDemoPage() {
             </div>
 
             {/* Ink Color Swatches */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-serif italic text-[#7C6958]">Ink:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-serif italic text-[#685545]">Ink:</span>
               {(Object.keys(inkColorMap) as HandwritingInkColor[]).map((ink) => (
                 <button
                   key={ink}
                   onClick={() => setInkColor(ink)}
+                  aria-label={inkColorMap[ink].label}
                   title={inkColorMap[ink].label}
-                  className={`w-6 h-6 rounded-full border border-[#FAF5ED] transition-transform ${
-                    ink === "midnight"
-                      ? "bg-[#1B2A3D]"
-                      : ink === "carbon"
-                      ? "bg-[#232120]"
-                      : ink === "sepia"
-                      ? "bg-[#4A3423]"
-                      : ink === "forest"
-                      ? "bg-[#243B28]"
-                      : "bg-[#4A1D24]"
-                  } ${
-                    inkColor === ink
-                      ? "scale-125 ring-2 ring-[#B89360] ring-offset-2 ring-offset-[#FAF6EE]"
-                      : "opacity-75 hover:opacity-100"
-                  }`}
-                />
+                  className="p-1 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg hover:bg-[#EFE5D5] transition-colors"
+                >
+                  <span
+                    className={`w-6 h-6 rounded-full border border-[#FAF5ED] transition-transform ${
+                      ink === "midnight"
+                        ? "bg-[#1B2A3D]"
+                        : ink === "carbon"
+                        ? "bg-[#232120]"
+                        : ink === "sepia"
+                        ? "bg-[#4A3423]"
+                        : ink === "forest"
+                        ? "bg-[#243B28]"
+                        : "bg-[#4A1D24]"
+                    } ${
+                      inkColor === ink
+                        ? "scale-125 ring-2 ring-[#B89360] ring-offset-2 ring-offset-[#FAF6EE]"
+                        : "opacity-75 hover:opacity-100"
+                    }`}
+                  />
+                </button>
               ))}
             </div>
 
             {/* Font Size Selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-serif italic text-[#7C6958]">Size:</span>
+              <span className="text-xs font-serif italic text-[#685545]">Size:</span>
               <div className="flex rounded-xl bg-[#EFE5D5] p-1 border border-[#DECDB8]">
                 {(["sm", "md", "lg", "xl"] as HandwritingFontSize[]).map((sz) => (
                   <button
                     key={sz}
                     onClick={() => setFontSize(sz)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
+                    className={`px-2.5 py-1 min-h-[36px] min-w-[32px] rounded-lg text-xs font-mono font-medium transition-colors ${
                       fontSize === sz
                         ? "bg-[#38261A] text-[#FAF5ED]"
                         : "text-[#5C4A3A] hover:bg-[#E2D5BF]"
@@ -155,10 +160,10 @@ export default function HandwritingDemoPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setEnableVariations(!enableVariations)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-serif transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-xl border text-xs font-serif transition-colors ${
                   enableVariations
                     ? "bg-[#EFE5D5] text-[#342419] border-[#B89360]"
-                    : "bg-[#FAF6EE] text-[#8C7A6B] border-[#DECDB8]"
+                    : "bg-[#FAF6EE] text-[#685545] border-[#DECDB8]"
                 }`}
               >
                 <Sliders className="w-3.5 h-3.5 text-[#B89360]" />
@@ -169,12 +174,12 @@ export default function HandwritingDemoPage() {
 
           {/* Preset Buttons for Quick Testing */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-serif italic text-[#7C6A5B] mr-1">Test presets:</span>
+            <span className="font-serif italic text-[#685545] mr-1">Test presets:</span>
             {presets.map((preset, idx) => (
               <button
                 key={idx}
                 onClick={() => setText(preset.text)}
-                className="px-3 py-1.5 rounded-xl bg-[#EFE5D5] hover:bg-[#E5D7BF] text-[#423124] border border-[#DAC9AF] transition-colors"
+                className="px-3 py-1.5 min-h-[36px] rounded-xl bg-[#EFE5D5] hover:bg-[#E5D7BF] text-[#423124] border border-[#DAC9AF] transition-colors"
               >
                 {preset.label}
               </button>
@@ -189,10 +194,10 @@ export default function HandwritingDemoPage() {
           <div className="bg-[#FAF6EE] p-6 rounded-2xl border border-[#D8C8B2] shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-[#DECDB8] mb-3">
-                <span className="text-xs font-serif italic text-[#7C6958]">
+                <span className="text-xs font-serif italic text-[#685545]">
                   Keyboard Input (Type here)
                 </span>
-                <span className="text-xs font-mono text-[#8C7A6B]">
+                <span className="text-xs font-mono text-[#685545]">
                   {text.length} characters
                 </span>
               </div>
@@ -205,11 +210,11 @@ export default function HandwritingDemoPage() {
               />
             </div>
 
-            <div className="pt-3 border-t border-[#E8DFC9] flex items-center justify-between text-xs text-[#827060] font-serif italic">
+            <div className="pt-3 border-t border-[#E8DFC9] flex items-center justify-between text-xs text-[#685545] font-serif italic">
               <span>Keystrokes render in real-time</span>
               <button
                 onClick={() => setText("")}
-                className="text-[#9C5449] hover:underline"
+                className="inline-flex items-center min-h-[36px] px-2 text-[#9C5449] hover:underline"
               >
                 Clear text
               </button>
@@ -223,10 +228,10 @@ export default function HandwritingDemoPage() {
 
             <div className="relative z-10 pl-6 flex-1">
               <div className="pb-3 border-b border-[#D8CABE]/50 mb-4 flex items-center justify-between">
-                <span className="text-xs font-serif italic text-[#847262]">
+                <span className="text-xs font-serif italic text-[#685545]">
                   Handwriting Engine Output
                 </span>
-                <span className="text-[11px] font-mono text-[#8C7A6B] uppercase">
+                <span className="text-[11px] font-mono text-[#685545] uppercase">
                   Style: {handwritingStyles[styleId].name}
                 </span>
               </div>
@@ -244,7 +249,7 @@ export default function HandwritingDemoPage() {
             </div>
 
             {/* Bottom Page Footer */}
-            <div className="relative z-10 pl-6 pt-4 border-t border-[#E8DEC9] flex items-center justify-between text-xs text-[#8A7969] font-serif italic">
+            <div className="relative z-10 pl-6 pt-4 border-t border-[#E8DEC9] flex items-center justify-between text-xs text-[#685545] font-serif italic">
               <span>Wrapped naturally across ruled lines</span>
               <CheckCircle2 className="w-4 h-4 text-[#6A9457]" />
             </div>
@@ -253,9 +258,9 @@ export default function HandwritingDemoPage() {
 
         {/* 3 Styles Visual Comparison Card */}
         <div className="bg-[#FAF6EE] p-6 rounded-2xl border border-[#D8C8B2] shadow-xs">
-          <h3 className="font-serif text-lg text-[#261A13] font-normal mb-4">
+          <h2 className="font-serif text-lg text-[#261A13] font-normal mb-4">
             Available Handwriting Styles Comparison
-          </h3>
+          </h2>
           <HandwritingStyleSelector
             selectedStyle={styleId}
             onSelectStyle={setStyleId}
@@ -265,7 +270,7 @@ export default function HandwritingDemoPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#FAF6EE] border-t border-[#DECDB8] px-4 py-3 text-center text-xs font-serif italic text-[#887463]">
+      <footer className="bg-[#FAF6EE] border-t border-[#DECDB8] px-4 py-3 text-center text-xs font-serif italic text-[#685545]">
         Digital Diary • Keyboard-to-Handwriting Engine v1.0
       </footer>
     </div>

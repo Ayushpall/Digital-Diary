@@ -129,9 +129,9 @@ export function DiaryGrid({
                       <span className="text-[10px] font-mono tracking-widest uppercase opacity-85 text-[#FAF5ED]">
                         VOL. {diary.id.slice(-1)}
                       </span>
-                      <h4 className="font-serif text-base text-[#FAF5ED] font-medium tracking-tight line-clamp-1 mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                      <p className="font-serif text-base text-[#FAF5ED] font-medium tracking-tight line-clamp-1 mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                         {diary.title}
-                      </h4>
+                      </p>
                     </div>
 
                     <div className="pl-3 relative z-10 flex items-center justify-between text-[11px] opacity-90 text-[#FAF5ED]">
@@ -155,8 +155,9 @@ export function DiaryGrid({
                               e.stopPropagation();
                               onDeleteDiary(diary.id, diary.title);
                             }}
-                            className="opacity-60 group-hover:opacity-100 p-1 rounded-lg text-[#A68F7E] hover:text-[#B33939] hover:bg-[#F2DFDF] transition-all"
+                            className="opacity-60 group-hover:opacity-100 p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg text-[#A68F7E] hover:text-[#B33939] hover:bg-[#F2DFDF] transition-all"
                             title="Delete collection"
+                            aria-label={`Delete ${diary.title}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

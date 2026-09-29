@@ -41,7 +41,7 @@ export function CoreFeatures() {
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ECE1CF] text-[#7A6655] text-xs font-mono uppercase tracking-widest mb-3 border border-[#DAC9B1]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ECE1CF] text-[#5C4A3A] text-xs font-mono uppercase tracking-widest mb-3 border border-[#DAC9B1]">
             <Sparkles className="w-3.5 h-3.5 text-[#B89360]" />
             <span>Handcrafted Simplicity</span>
           </div>
@@ -71,7 +71,7 @@ export function CoreFeatures() {
                     <Icon className="w-6 h-6" />
                   </div>
 
-                  <span className="text-xs font-mono tracking-wider uppercase text-[#968270] block mb-2">
+                  <span className="text-xs font-mono tracking-wider uppercase text-[#6B5746] block mb-2 font-medium">
                     {item.tag}
                   </span>
 
@@ -84,7 +84,7 @@ export function CoreFeatures() {
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#E8DFCF] flex items-center gap-2 text-xs font-serif italic text-[#8B7766]">
+                <div className="mt-6 pt-4 border-t border-[#E8DFCF] flex items-center gap-2 text-xs font-serif italic text-[#6B5746]">
                   <Feather className="w-3.5 h-3.5 text-[#B89360]" />
                   <span>Curated for mindful writing</span>
                 </div>

@@ -86,17 +86,21 @@ export function FeaturePreview() {
           {/* Center / Right Controls: Ink & Paper Pickers */}
           <div className="flex items-center gap-4 sm:gap-6">
             {/* Ink Swatches */}
-            <div className="flex items-center gap-2 bg-[#281B12] px-3 py-1.5 rounded-lg border border-[#442E20]">
-              <span className="text-[11px] text-[#B5A494] font-serif italic hidden sm:inline">Ink:</span>
+            <div className="flex items-center gap-1 sm:gap-2 bg-[#281B12] px-2.5 py-1.5 rounded-lg border border-[#442E20]">
+              <span className="text-[11px] text-[#B5A494] font-serif italic hidden sm:inline pl-1">Ink:</span>
               {(["sepia", "midnight", "carbon"] as InkColor[]).map((c) => (
                 <button
                   key={c}
                   onClick={() => setInk(c)}
-                  title={inkMap[c].name}
-                  className={`w-4 h-4 rounded-full ${inkMap[c].bg} border border-[#FAF5ED]/30 transition-all ${
-                    ink === c ? "scale-125 ring-2 ring-[#D5AF64] ring-offset-1 ring-offset-[#281B12]" : "opacity-60 hover:opacity-100"
-                  }`}
-                />
+                  aria-label={inkMap[c].name}
+                  className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full ${inkMap[c].bg} border border-[#FAF5ED]/30 transition-all ${
+                      ink === c ? "scale-125 ring-2 ring-[#D5AF64] ring-offset-1 ring-offset-[#281B12]" : "opacity-60 hover:opacity-100"
+                    }`}
+                  />
+                </button>
               ))}
             </div>
 
@@ -104,24 +108,24 @@ export function FeaturePreview() {
             <div className="flex items-center gap-1 bg-[#281B12] p-1 rounded-lg border border-[#442E20] text-xs">
               <button
                 onClick={() => setPaper("lined")}
-                className={`px-2.5 py-1 rounded transition-colors ${
-                  paper === "lined" ? "bg-[#4D3627] text-[#FDF9F3] font-medium" : "text-[#9E8B7A] hover:text-[#EDE3D3]"
+                className={`px-3 py-2 min-h-[36px] rounded transition-colors ${
+                  paper === "lined" ? "bg-[#4D3627] text-[#FDF9F3] font-medium" : "text-[#B5A494] hover:text-[#EDE3D3]"
                 }`}
               >
                 Ruled
               </button>
               <button
                 onClick={() => setPaper("dotgrid")}
-                className={`px-2.5 py-1 rounded transition-colors ${
-                  paper === "dotgrid" ? "bg-[#4D3627] text-[#FDF9F3] font-medium" : "text-[#9E8B7A] hover:text-[#EDE3D3]"
+                className={`px-3 py-2 min-h-[36px] rounded transition-colors ${
+                  paper === "dotgrid" ? "bg-[#4D3627] text-[#FDF9F3] font-medium" : "text-[#B5A494] hover:text-[#EDE3D3]"
                 }`}
               >
                 Dots
               </button>
               <button
                 onClick={() => setPaper("blank")}
-                className={`px-2.5 py-1 rounded transition-colors ${
-                  paper === "blank" ? "bg-[#4D3627] text-[#FDF9F3] font-medium" : "text-[#9E8B7A] hover:text-[#EDE3D3]"
+                className={`px-3 py-2 min-h-[36px] rounded transition-colors ${
+                  paper === "blank" ? "bg-[#4D3627] text-[#FDF9F3] font-medium" : "text-[#B5A494] hover:text-[#EDE3D3]"
                 }`}
               >
                 Blank
@@ -158,26 +162,26 @@ export function FeaturePreview() {
           </div>
 
           {/* Bottom Page Navigation Controls & Page Number */}
-          <div className="mt-8 pt-6 border-t border-[#DFD1BD]/80 flex items-center justify-between text-xs text-[#877565] font-serif">
+          <div className="mt-8 pt-6 border-t border-[#DFD1BD]/80 flex items-center justify-between text-xs text-[#675443] font-serif">
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-1 px-3 py-1.5 rounded bg-[#ECE0CD] hover:bg-[#E2D4BF] text-[#4E3D30] transition-colors border border-[#DAC9B1]">
+              <button className="flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] rounded bg-[#ECE0CD] hover:bg-[#E2D4BF] text-[#4E3D30] transition-colors border border-[#DAC9B1]">
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Previous Page</span>
               </button>
-              <button className="flex items-center gap-1 px-3 py-1.5 rounded bg-[#ECE0CD] hover:bg-[#E2D4BF] text-[#4E3D30] transition-colors border border-[#DAC9B1]">
+              <button className="flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] rounded bg-[#ECE0CD] hover:bg-[#E2D4BF] text-[#4E3D30] transition-colors border border-[#DAC9B1]">
                 <span>Next Page</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="font-mono text-xs text-[#877565]">
+            <div className="font-mono text-xs text-[#675443]">
               Page 12 of 144
             </div>
           </div>
         </div>
 
         {/* Minimal Tooltip Hint */}
-        <p className="text-center text-xs text-[#867566] font-serif italic mt-4">
+        <p className="text-center text-xs text-[#675443] font-serif italic mt-4">
           Click any control above to test ink tones and paper rulings dynamically.
         </p>
       </div>

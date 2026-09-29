@@ -88,7 +88,7 @@ export function DashboardSidebar({
               <span className="font-serif text-xl tracking-tight text-[#2A1D15] font-medium block">
                 Digital Diary
               </span>
-              <span className="text-[10px] tracking-wider uppercase text-[#887463] font-mono block -mt-1">
+              <span className="text-[10px] tracking-wider uppercase text-[#685545] font-mono block -mt-1 font-medium">
                 Personal Home
               </span>
             </div>
@@ -98,7 +98,7 @@ export function DashboardSidebar({
           {onMobileClose && (
             <button
               onClick={onMobileClose}
-              className="md:hidden p-1.5 rounded-lg text-[#7C6958] hover:bg-[#E8DCB8] transition-colors"
+              className="md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#5C4C3E] hover:bg-[#E8DCB8] transition-colors"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
@@ -146,7 +146,7 @@ export function DashboardSidebar({
           </span>
           <button
             onClick={() => setThemeDark(!themeDark)}
-            className="px-2.5 py-1 rounded-md bg-[#FAF5ED] text-[#3A281B] text-[11px] font-sans font-medium hover:bg-white shadow-2xs transition-colors border border-[#DDD0BC]"
+            className="px-2.5 py-1.5 min-h-[36px] rounded-md bg-[#FAF5ED] text-[#3A281B] text-[11px] font-sans font-medium hover:bg-white shadow-2xs transition-colors border border-[#DDD0BC]"
           >
             {themeDark ? "Warm Ink" : "Parchment"}
           </button>
@@ -172,7 +172,7 @@ export function DashboardSidebar({
                 <p className="text-xs font-serif font-medium text-[#291D15] leading-tight truncate">
                   {user.fullName || user.username || "Private Journaler"}
                 </p>
-                <p className="text-[10px] text-[#8C7A6B] font-mono leading-tight truncate">
+                <p className="text-[10px] text-[#685545] font-mono leading-tight truncate font-medium">
                   {user.primaryEmailAddress?.emailAddress || "Signed in"}
                 </p>
               </div>
@@ -181,7 +181,7 @@ export function DashboardSidebar({
               onClick={() => signOut({ redirectUrl: "/" })}
               title="Sign Out"
               aria-label="Sign Out"
-              className="p-1.5 text-[#887564] hover:text-[#3B291D] hover:bg-[#EBE0CF] rounded-lg transition-colors diary-focus active:scale-95 flex-shrink-0"
+              className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#685545] hover:text-[#3B291D] hover:bg-[#EBE0CF] rounded-lg transition-colors diary-focus active:scale-95 flex-shrink-0"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -196,7 +196,7 @@ export function DashboardSidebar({
                 <p className="text-xs font-serif font-medium text-[#291D15] leading-tight">
                   Guest Explorer
                 </p>
-                <p className="text-[10px] text-[#8C7A6B] font-mono leading-tight">
+                <p className="text-[10px] text-[#685545] font-mono leading-tight font-medium">
                   Preview Mode
                 </p>
               </div>

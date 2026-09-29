@@ -149,7 +149,7 @@ export default function SearchPage() {
               <span className="font-serif text-base text-[#281B13] font-normal leading-tight block">
                 Memory Search
               </span>
-              <span className="text-[10px] text-[#8C7A6B] font-mono leading-tight block uppercase tracking-wider">
+              <span className="text-[10px] text-[#685545] font-mono leading-tight block uppercase tracking-wider font-medium">
                 Local Journal Archive
               </span>
             </div>
@@ -160,14 +160,14 @@ export default function SearchPage() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/calendar"
-            className="hidden md:inline-flex text-xs font-serif text-[#786657] hover:text-[#38261A] px-2.5 py-1.5"
+            className="hidden md:inline-flex text-xs font-serif text-[#786657] hover:text-[#38261A] px-3 py-2 min-h-[44px] items-center"
           >
             Calendar
           </Link>
 
           <Link
             href="/diary/demo"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#422F22] border border-[#DAC9B1] text-xs font-serif transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-[#EFE5D5] hover:bg-[#E2D5BF] text-[#422F22] border border-[#DAC9B1] text-xs font-serif transition-colors"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#B89360]" />
             <span className="hidden sm:inline">Reading Room</span>
@@ -175,7 +175,7 @@ export default function SearchPage() {
 
           <Link
             href="/editor/demo"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#342419] hover:bg-[#483324] text-[#FAF5ED] text-xs font-medium border border-[#523B2A] shadow-xs active:scale-95 transition-all"
           >
             <PenTool className="w-3.5 h-3.5 text-[#E5C78B]" />
             <span>+ New Entry</span>
@@ -187,9 +187,9 @@ export default function SearchPage() {
       <main className="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-6 lg:p-8 pb-24 md:pb-8">
         {/* Intro Tagline */}
         <div className="mb-6">
-          <h2 className="font-serif text-2xl sm:text-3xl text-[#261A13] font-normal tracking-tight mb-1">
+          <h1 className="font-serif text-2xl sm:text-3xl text-[#261A13] font-normal tracking-tight mb-1">
             Search Your Past Reflections
-          </h2>
+          </h1>
           <p className="text-xs sm:text-sm text-[#736253] font-light">
             Instantly query all written memories by keywords, topics, moods, or calendar dates.
           </p>

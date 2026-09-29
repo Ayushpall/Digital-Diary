@@ -20,35 +20,35 @@ export function Navbar() {
             <span className="font-serif text-2xl tracking-tight text-[#2A1E17] font-medium block">
               Digital Diary
             </span>
-            <span className="text-[10px] tracking-widest uppercase text-[#8C7A6B] font-mono block -mt-1">
+            <span className="text-[10px] tracking-widest uppercase text-[#615246] font-mono block -mt-1 font-medium">
               Handwritten Journal
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#615246]" aria-label="Main Navigation">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#615246]" aria-label="Main Navigation">
           <Link
             href="/"
-            className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
+            className="hover:text-[#2A1E17] transition-colors py-2 px-1 min-h-[44px] inline-flex items-center relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-1 after:left-0 after:transition-all rounded-sm"
           >
             Home
           </Link>
           <Link
             href="/features"
-            className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
+            className="hover:text-[#2A1E17] transition-colors py-2 px-1 min-h-[44px] inline-flex items-center relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-1 after:left-0 after:transition-all rounded-sm"
           >
             Features
           </Link>
           <a
             href="#how-it-works"
-            className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
+            className="hover:text-[#2A1E17] transition-colors py-2 px-1 min-h-[44px] inline-flex items-center relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-1 after:left-0 after:transition-all rounded-sm"
           >
             How It Works
           </a>
           <a
             href="#privacy"
-            className="hover:text-[#2A1E17] transition-colors py-1 relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-0 after:left-0 after:transition-all rounded-sm"
+            className="hover:text-[#2A1E17] transition-colors py-2 px-1 min-h-[44px] inline-flex items-center relative hover:after:w-full after:w-0 after:h-[1.5px] after:bg-[#8B5A36] after:absolute after:bottom-1 after:left-0 after:transition-all rounded-sm"
           >
             Privacy
           </a>
@@ -58,7 +58,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="text-sm font-medium text-[#615246] hover:text-[#2A1E17] transition-colors py-1 px-3">
+              <button className="text-sm font-medium text-[#615246] hover:text-[#2A1E17] transition-colors py-2.5 px-3 min-h-[44px] inline-flex items-center">
                 Sign In
               </button>
             </SignInButton>
@@ -68,7 +68,7 @@ export function Navbar() {
           </SignedIn>
           <a
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#32231A] text-[#FAF5ED] text-sm font-medium hover:bg-[#463226] shadow-sm hover:shadow-md transition-all active:scale-95 border border-[#4F392B]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-full bg-[#32231A] text-[#FAF5ED] text-sm font-medium hover:bg-[#463226] shadow-sm hover:shadow-md transition-all active:scale-95 border border-[#4F392B]"
           >
             <BookOpen className="w-4 h-4 text-[#D8B97C]" />
             <span>Start Writing</span>
@@ -78,7 +78,7 @@ export function Navbar() {
         {/* Mobile Menu Toggle Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-[#524338] hover:bg-[#EFE7D8] transition-colors"
+          className="md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#524338] hover:bg-[#EFE7D8] transition-colors"
           aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={mobileMenuOpen}
         >

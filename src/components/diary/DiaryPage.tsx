@@ -44,15 +44,15 @@ export function DiaryPage({ page, position }: DiaryPageProps) {
       {/* Top Folio Header */}
       <div className="relative z-10 flex items-center justify-between pb-3 border-b border-[#D8CABE]/50 mb-4">
         {page.date ? (
-          <div className="flex items-center gap-2 text-xs font-serif italic text-[#847262]">
+          <div className="flex items-center gap-2 text-xs font-serif italic text-[#6A5747]">
             <Calendar className="w-3.5 h-3.5 text-[#B89360]" />
             <span className="font-medium text-[#463426]">{page.date}</span>
             {page.dayOfWeek && (
-              <span className="text-[#968474]">({page.dayOfWeek})</span>
+              <span className="text-[#6A5747]">({page.dayOfWeek})</span>
             )}
           </div>
         ) : (
-          <div className="text-xs font-serif italic text-[#968474]">Memoirs</div>
+          <div className="text-xs font-serif italic text-[#6A5747]">Memoirs</div>
         )}
 
         {page.mood && (
@@ -94,7 +94,7 @@ export function DiaryPage({ page, position }: DiaryPageProps) {
 
       {/* Bottom Page Footer with Folio Stamp */}
       <div className="relative z-10 pt-4 border-t border-[#E8DEC9] flex items-center justify-between">
-        <span className="text-[11px] font-serif italic text-[#968576]">
+        <span className="text-[11px] font-serif italic text-[#6A5747]">
           Digital Diary Volume I
         </span>
         <PageNumber
