@@ -38,6 +38,12 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 import { notifyDiaryDataChanged } from "@/lib/use-diary-data";
+import {
+  ActiveFormatting,
+  FormatCommand,
+  querySelectionFormatting,
+  sanitizeHtml,
+} from "@/lib/rich-text";
 
 function EditorDemoContent() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -87,6 +93,45 @@ function EditorDemoContent() {
 
   // Creative page blocks (Image, Drawing, Stickers)
   const [blocks, setBlocks] = useState<PageBlock[]>([]);
+
+  const editorRef = React.useRef<HTMLDivElement | null>(null);
+  const [activeFormatting, setActiveFormatting] = useState<ActiveFormatting>({
+    isBold: false,
+    isItalic: false,
+    isUnderline: false,
+    textAlign: "left",
+  });
+
+  const handleSelectionChange = React.useCallback(() => {
+    setActiveFormatting(querySelectionFormatting());
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+    };
+  }, [handleSelectionChange]);
+
+  const handleFormat = (command: FormatCommand) => {
+    if (editorRef.current) {
+      if (
+        document.activeElement !== editorRef.current &&
+        !editorRef.current.contains(document.activeElement)
+      ) {
+        editorRef.current.focus();
+      }
+    }
+    document.execCommand(command, false);
+    if (editorRef.current) {
+      const html = editorRef.current.innerHTML;
+      const plain = editorRef.current.innerText.trim();
+      const isActuallyEmpty = !plain && !editorRef.current.querySelector("img");
+      const finalContent = isActuallyEmpty ? "" : html;
+      setContent(finalContent);
+    }
+    handleSelectionChange();
+  };
 
   const [settings, setSettings] = useState<EditorSettings>({
     font: "cursive",
@@ -179,10 +224,11 @@ function EditorDemoContent() {
         if (isSignedIn) {
           const parsedDate = new Date(date);
           const validDate = !isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : new Date().toISOString();
+          const cleanContent = sanitizeHtml(content);
 
           const payload = {
             title: title.trim() || "Untitled Entry",
-            content,
+            content: cleanContent,
             blocks,
             handwritingFont: settings.font,
             inkColor: settings.inkColor,
@@ -253,10 +299,11 @@ function EditorDemoContent() {
       if (isSignedIn) {
         const parsedDate = new Date(date);
         const validDate = !isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : new Date().toISOString();
+        const cleanContent = sanitizeHtml(content);
 
         const payload = {
           title: title.trim() || "Untitled Entry",
-          content,
+          content: cleanContent,
           blocks,
           handwritingFont: settings.font,
           inkColor: settings.inkColor,
@@ -468,6 +515,8 @@ function EditorDemoContent() {
         onUpdateSettings={handleUpdateSettings}
         onSave={handleManualSave}
         saveStatus={saveStatus}
+        activeFormatting={activeFormatting}
+        onFormat={handleFormat}
       />
 
       {/* Mobile Tab Switcher: Write | Preview (< md) */}
@@ -581,6 +630,8 @@ function EditorDemoContent() {
                     setPreviewFlipDirection(idx > previewPageIndex ? "forward" : "backward");
                     setPreviewPageIndex(idx);
                   }}
+                  editorRef={editorRef}
+                  onSelectionChange={handleSelectionChange}
                 />
               )}
 

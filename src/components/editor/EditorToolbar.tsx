@@ -24,11 +24,15 @@ import {
   AlertCircle
 } from "lucide-react";
 
+import { ActiveFormatting, FormatCommand } from "@/lib/rich-text";
+
 interface EditorToolbarProps {
   settings: EditorSettings;
   onUpdateSettings: (updates: Partial<EditorSettings>) => void;
   onSave: () => void;
   saveStatus: "idle" | "saving" | "saved" | "error";
+  activeFormatting?: ActiveFormatting;
+  onFormat?: (command: FormatCommand) => void;
 }
 
 export function EditorToolbar({
@@ -36,6 +40,8 @@ export function EditorToolbar({
   onUpdateSettings,
   onSave,
   saveStatus,
+  activeFormatting,
+  onFormat,
 }: EditorToolbarProps) {
   const fontSizes: { id: EditorFontSize; label: string }[] = [
     { id: "sm", label: "A-" },
@@ -43,6 +49,11 @@ export function EditorToolbar({
     { id: "lg", label: "A+" },
     { id: "xl", label: "A++" },
   ];
+
+  const isBold = activeFormatting?.isBold ?? settings.isBold;
+  const isItalic = activeFormatting?.isItalic ?? settings.isItalic;
+  const isUnderline = activeFormatting?.isUnderline ?? settings.isUnderline;
+  const textAlign = activeFormatting?.textAlign ?? settings.textAlign;
 
   return (
     <div className="w-full bg-[#FAF6ED] border-b border-[#DECDB8] px-4 py-3 shadow-2xs">
@@ -81,8 +92,10 @@ export function EditorToolbar({
           {/* Text Alignment */}
           <div className="flex items-center bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs">
             <button
-              onClick={() => onUpdateSettings({ textAlign: "left" })}
-              className={`p-1.5 rounded-lg transition-colors ${settings.textAlign === "left"
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFormat ? onFormat("justifyLeft") : onUpdateSettings({ textAlign: "left" })}
+              className={`p-1.5 rounded-lg transition-colors ${textAlign === "left"
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
@@ -91,8 +104,10 @@ export function EditorToolbar({
               <AlignLeft className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onUpdateSettings({ textAlign: "center" })}
-              className={`p-1.5 rounded-lg transition-colors ${settings.textAlign === "center"
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFormat ? onFormat("justifyCenter") : onUpdateSettings({ textAlign: "center" })}
+              className={`p-1.5 rounded-lg transition-colors ${textAlign === "center"
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
@@ -101,8 +116,10 @@ export function EditorToolbar({
               <AlignCenter className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onUpdateSettings({ textAlign: "right" })}
-              className={`p-1.5 rounded-lg transition-colors ${settings.textAlign === "right"
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFormat ? onFormat("justifyRight") : onUpdateSettings({ textAlign: "right" })}
+              className={`p-1.5 rounded-lg transition-colors ${textAlign === "right"
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
@@ -115,8 +132,10 @@ export function EditorToolbar({
           {/* Formatting: Bold, Italic, Underline */}
           <div className="flex items-center bg-[#FAF6EE] p-1 rounded-xl border border-[#DECDB8] shadow-2xs">
             <button
-              onClick={() => onUpdateSettings({ isBold: !settings.isBold })}
-              className={`p-1.5 rounded-lg transition-colors ${settings.isBold
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFormat ? onFormat("bold") : onUpdateSettings({ isBold: !settings.isBold })}
+              className={`p-1.5 rounded-lg transition-colors ${isBold
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
@@ -125,8 +144,10 @@ export function EditorToolbar({
               <Bold className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onUpdateSettings({ isItalic: !settings.isItalic })}
-              className={`p-1.5 rounded-lg transition-colors ${settings.isItalic
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFormat ? onFormat("italic") : onUpdateSettings({ isItalic: !settings.isItalic })}
+              className={`p-1.5 rounded-lg transition-colors ${isItalic
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}
@@ -135,8 +156,10 @@ export function EditorToolbar({
               <Italic className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onUpdateSettings({ isUnderline: !settings.isUnderline })}
-              className={`p-1.5 rounded-lg transition-colors ${settings.isUnderline
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onFormat ? onFormat("underline") : onUpdateSettings({ isUnderline: !settings.isUnderline })}
+              className={`p-1.5 rounded-lg transition-colors ${isUnderline
                 ? "bg-[#38261A] text-[#FAF5ED]"
                 : "text-[#635142] hover:bg-[#EFE5D5]"
                 }`}

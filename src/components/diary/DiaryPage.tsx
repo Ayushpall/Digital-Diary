@@ -6,6 +6,8 @@ import { PageNumber } from "./PageNumber";
 import { PageBlocksRenderer } from "@/components/creative/PageBlocksRenderer";
 import { Calendar, Sparkles } from "lucide-react";
 
+import { sanitizeHtml } from "@/lib/rich-text";
+
 interface DiaryPageProps {
   page: DiaryPageData;
   position: "left" | "right" | "single";
@@ -69,11 +71,18 @@ export function DiaryPage({ page, position }: DiaryPageProps) {
         )}
 
         {/* Cursive handwritten body text aligned to ruled baseline */}
-        <div
-          className={`handwriting-ink text-xl sm:text-2xl leading-8 ${inkColorClass} whitespace-pre-line`}
-        >
-          {page.content}
-        </div>
+        {page.content && page.content.includes("<") && page.content.includes(">") ? (
+          <div
+            className={`handwriting-ink text-xl sm:text-2xl leading-8 ${inkColorClass} [&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline [&_u]:underline-offset-4 [&_p]:min-h-[1.5rem]`}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
+          />
+        ) : (
+          <div
+            className={`handwriting-ink text-xl sm:text-2xl leading-8 ${inkColorClass} whitespace-pre-line`}
+          >
+            {page.content}
+          </div>
+        )}
 
         {/* Creative Keepsake Blocks (Photos, Sketches, Stickers) */}
         {page.blocks && page.blocks.length > 0 && (

@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
-import { PenLine, FileText } from "lucide-react";
+import React, { useRef, useEffect } from "react";
+import { PenLine } from "lucide-react";
+import { getPlainText } from "@/lib/rich-text";
 
 interface TextEditorProps {
   title: string;
@@ -10,6 +11,8 @@ interface TextEditorProps {
   onContentChange: (content: string) => void;
   activePageIndex?: number;
   onSelectPage?: (pageIndex: number) => void;
+  editorRef?: React.RefObject<HTMLDivElement | null>;
+  onSelectionChange?: () => void;
 }
 
 export function TextEditor({
@@ -19,10 +22,37 @@ export function TextEditor({
   onContentChange,
   activePageIndex = 0,
   onSelectPage,
+  editorRef: externalRef,
+  onSelectionChange,
 }: TextEditorProps) {
-  // Word & Character count
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
-  const charCount = content.length;
+  const localRef = useRef<HTMLDivElement | null>(null);
+  const editorRef = externalRef || localRef;
+  const lastHtmlRef = useRef<string>("");
+
+  // Sync external content changes into the contentEditable DOM
+  useEffect(() => {
+    if (editorRef.current && content !== lastHtmlRef.current) {
+      editorRef.current.innerHTML = content || "";
+      lastHtmlRef.current = content || "";
+    }
+  }, [content, editorRef]);
+
+  const handleInput = () => {
+    if (!editorRef.current) return;
+    const html = editorRef.current.innerHTML;
+    // Check if truly empty
+    const plain = editorRef.current.innerText.trim();
+    const isActuallyEmpty = !plain && !editorRef.current.querySelector("img");
+    const finalContent = isActuallyEmpty ? "" : html;
+    lastHtmlRef.current = finalContent;
+    onContentChange(finalContent);
+    onSelectionChange?.();
+  };
+
+  // Word & Character count (computed on visible text without HTML tags)
+  const plainText = getPlainText(content);
+  const wordCount = plainText.trim() ? plainText.trim().split(/\s+/).length : 0;
+  const charCount = plainText.length;
   const charsPerPage = 500;
 
   // Capacity math
@@ -78,13 +108,18 @@ export function TextEditor({
         className="w-full font-serif text-2xl sm:text-3xl text-[#281B13] tracking-tight bg-transparent border-b border-[#E2D6C5] pb-2 mb-4 outline-none placeholder:text-[#A69482]/60 focus:border-[#8E6945] transition-colors"
       />
 
-      {/* Entry Body Textarea */}
-      <textarea
-        value={content}
-        onChange={(e) => onContentChange(e.target.value)}
-        placeholder="Type your thoughts freely with your keyboard. When you reach 500 characters, the page will automatically flip to the next leaf..."
-        className="w-full flex-1 bg-transparent resize-none outline-none font-sans text-base text-[#38281D] leading-relaxed placeholder:text-[#A8988A]/60"
-        rows={16}
+      {/* Entry Body contentEditable rich text area */}
+      <div
+        ref={editorRef as React.RefObject<HTMLDivElement>}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onKeyUp={onSelectionChange}
+        onMouseUp={onSelectionChange}
+        onSelect={onSelectionChange}
+        onFocus={onSelectionChange}
+        data-placeholder="Type your thoughts freely with your keyboard. When you reach 500 characters, the page will automatically flip to the next leaf..."
+        className="w-full flex-1 bg-transparent resize-none outline-none font-sans text-base text-[#38281D] leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-[#A8988A]/60 empty:before:pointer-events-none min-h-[300px] whitespace-pre-wrap focus:outline-none [&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline [&_u]:underline-offset-4 overflow-y-auto"
       />
 
       {/* Footer Helper Note & Page Switcher */}

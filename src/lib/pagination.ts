@@ -5,6 +5,7 @@
  *
  * Respects paragraph boundaries, sentence endings, and word breaks so lines
  * never break awkwardly and text fits within the physical notebook page height.
+ * Supports both rich HTML paragraphs and plain text entries.
  */
 export function paginateContent(content: string, maxCharsPerPage = 500): string[] {
   if (!content || content.trim().length === 0) {
@@ -16,6 +17,39 @@ export function paginateContent(content: string, maxCharsPerPage = 500): string[
     return [content];
   }
 
+  // Check if content contains HTML tags
+  const hasHtml = /<[a-z][\s\S]*>/i.test(content);
+
+  if (hasHtml) {
+    // Paginate by complete HTML blocks so no tags are broken
+    const blocks = content.match(/<p\b[^>]*>[\s\S]*?<\/p>|<div\b[^>]*>[\s\S]*?<\/div>|<br\s*\/?>|[^<]+/gi) || [content];
+    const pages: string[] = [];
+    let currentPageHtml = "";
+    let currentTextLen = 0;
+
+    for (const block of blocks) {
+      const blockText = block.replace(/<[^>]*>/g, "");
+      const blockLen = blockText.length;
+
+      // If adding this block exceeds limit and we already have content on current page
+      if (currentTextLen + blockLen > maxCharsPerPage && currentTextLen > 0) {
+        pages.push(currentPageHtml);
+        currentPageHtml = block;
+        currentTextLen = blockLen;
+      } else {
+        currentPageHtml += block;
+        currentTextLen += blockLen;
+      }
+    }
+
+    if (currentPageHtml.trim()) {
+      pages.push(currentPageHtml);
+    }
+
+    return pages.length > 0 ? pages : [content];
+  }
+
+  // Plain text pagination
   const pages: string[] = [];
   let remaining = content;
 

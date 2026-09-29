@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { HandwritingStyleConfig } from "@/types/handwriting";
+import { parseFormattedText } from "@/lib/rich-text";
 
 interface HandwritingTextProps {
   text: string;
@@ -31,9 +32,9 @@ export function HandwritingText({
   const maxRotation =
     rotationVariation !== undefined ? rotationVariation : config.rotationVariation;
 
-  // Split text by lines and words while preserving whitespace and newlines
+  // Split text by paragraphs and formatted runs (supports both rich HTML and plain text)
   const paragraphs = useMemo(() => {
-    return text.split("\n");
+    return parseFormattedText(text);
   }, [text]);
 
   if (!text) {
@@ -51,44 +52,66 @@ export function HandwritingText({
       }}
     >
       {paragraphs.map((para, pIdx) => {
-        if (para === "") {
+        const alignClass =
+          para.align === "center"
+            ? "text-center"
+            : para.align === "right"
+            ? "text-right"
+            : "text-left";
+
+        const totalText = para.runs.map((r) => r.text).join("");
+        if (totalText === "") {
           return <div key={`empty-${pIdx}`} className="h-8" />;
         }
 
-        // Split paragraph into words and whitespace
-        const tokens = para.split(/(\s+)/);
-
         return (
-          <div key={`para-${pIdx}`} className="min-h-[32px] leading-8">
-            {tokens.map((token, tIdx) => {
-              // If token is whitespace, preserve it
-              if (/^\s+$/.test(token)) {
-                return (
-                  <span key={`space-${pIdx}-${tIdx}`} className="inline">
-                    {token}
-                  </span>
-                );
-              }
+          <div key={`para-${pIdx}`} className={`min-h-[32px] leading-8 ${alignClass}`}>
+            {para.runs.map((run, rIdx) => {
+              // Split run text into words and whitespace
+              const tokens = run.text.split(/(\s+)/);
 
-              // Compute subtle deterministic rotation (-maxRotation to +maxRotation)
-              const hashVal = simpleHash(token, pIdx * 100 + tIdx);
-              const normalized = (Math.abs(hashVal) % 1000) / 1000; // 0 to 1
-              const rotation = (normalized * 2 - 1) * maxRotation; // -max to +max
-              
-              // Slight micro-offset on Y axis (e.g. -0.5px to +0.5px) for natural ink baseline
-              const yOffset = ((normalized * 2 - 1) * 0.5).toFixed(2);
+              const runStyleClass = [
+                run.bold ? "font-bold" : "",
+                run.italic ? "italic" : "",
+                run.underline ? "underline underline-offset-4 decoration-[#B89360]/60" : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
 
               return (
-                <span
-                  key={`word-${pIdx}-${tIdx}`}
-                  className="inline-block transition-transform duration-100"
-                  style={{
-                    transform: `rotate(${rotation.toFixed(2)}deg) translateY(${yOffset}px)`,
-                    transformOrigin: "center baseline",
-                  }}
-                >
-                  {token}
-                </span>
+                <React.Fragment key={`run-${pIdx}-${rIdx}`}>
+                  {tokens.map((token, tIdx) => {
+                    // If token is whitespace, preserve it
+                    if (/^\s+$/.test(token)) {
+                      return (
+                        <span key={`space-${pIdx}-${rIdx}-${tIdx}`} className="inline">
+                          {token}
+                        </span>
+                      );
+                    }
+
+                    // Compute subtle deterministic rotation (-maxRotation to +maxRotation)
+                    const hashVal = simpleHash(token, pIdx * 1000 + rIdx * 100 + tIdx);
+                    const normalized = (Math.abs(hashVal) % 1000) / 1000; // 0 to 1
+                    const rotation = (normalized * 2 - 1) * maxRotation; // -max to +max
+                    
+                    // Slight micro-offset on Y axis for natural ink baseline
+                    const yOffset = ((normalized * 2 - 1) * 0.5).toFixed(2);
+
+                    return (
+                      <span
+                        key={`word-${pIdx}-${rIdx}-${tIdx}`}
+                        className={`inline-block transition-transform duration-100 ${runStyleClass}`}
+                        style={{
+                          transform: `rotate(${rotation.toFixed(2)}deg) translateY(${yOffset}px)`,
+                          transformOrigin: "center baseline",
+                        }}
+                      >
+                        {token}
+                      </span>
+                    );
+                  })}
+                </React.Fragment>
               );
             })}
           </div>
