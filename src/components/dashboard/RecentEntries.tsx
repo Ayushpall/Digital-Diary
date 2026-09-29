@@ -9,6 +9,7 @@ interface RecentEntriesProps {
   onOpenEntry?: (entryId: string) => void;
   onDeleteEntry?: (entryId: string, entryTitle: string) => void;
   onViewAll?: () => void;
+  loading?: boolean;
 }
 
 export function RecentEntries({
@@ -16,6 +17,7 @@ export function RecentEntries({
   onOpenEntry,
   onDeleteEntry,
   onViewAll,
+  loading = false,
 }: RecentEntriesProps) {
   return (
     <section className="mt-12">
@@ -38,7 +40,41 @@ export function RecentEntries({
       </div>
 
       {/* Entries List */}
-      {entries.length === 0 ? (
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map((idx) => (
+            <div
+              key={`entry-skeleton-${idx}`}
+              className="p-5 sm:p-6 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden animate-pulse min-h-[125px]"
+            >
+              {/* Left red margin line indicator */}
+              <div className="absolute top-0 bottom-0 left-3 w-[1.5px] bg-[#E29288]/30" />
+
+              {/* Main Content Info */}
+              <div className="pl-4 flex-1">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                  <div className="h-5 w-24 bg-[#EFE6D6] rounded-md border border-[#DDD0BC]" />
+                  <div className="h-4 w-16 bg-[#EFE6D6] rounded" />
+                  <div className="h-5 w-20 bg-[#EAE1D0] rounded-full border border-[#D5C6B0]" />
+                  <div className="h-3.5 w-28 bg-[#EFE6D6] rounded ml-auto md:ml-0" />
+                </div>
+
+                {/* Title */}
+                <div className="h-6 w-2/5 bg-[#EAE0CF] rounded mb-2" />
+
+                {/* Short Preview */}
+                <div className="h-4 w-11/12 bg-[#EFE6D6] rounded mb-1.5" />
+                <div className="h-4 w-3/4 bg-[#EFE6D6] rounded" />
+              </div>
+
+              {/* Action: Open Button placeholder */}
+              <div className="pl-4 md:pl-0 flex items-center justify-end">
+                <div className="w-full md:w-28 h-9 rounded-xl bg-[#EFE5D5] border border-[#D8C7B0]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : entries.length === 0 ? (
         <div className="p-8 rounded-2xl bg-[#FAF6EE] border border-[#DDD0BC] shadow-2xs text-center flex flex-col items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-[#EFE6D6] flex items-center justify-center mb-3 text-[#B89360]">
             <PenTool className="w-5 h-5" />

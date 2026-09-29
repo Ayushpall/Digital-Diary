@@ -33,6 +33,7 @@ export default function DashboardPage() {
     diaries,
     recentEntries,
     stats,
+    loading,
     refresh,
     createDiary,
     deleteDiary,
@@ -250,6 +251,7 @@ export default function DashboardPage() {
           {/* Section 2: My Diaries with Deletion Option */}
           <DiaryGrid
             diaries={diaries}
+            loading={loading}
             onOpenDiary={handleOpenDiary}
             onCreateDiary={handleCreateDiary}
             onDeleteDiary={(diaryId) => {
@@ -261,6 +263,7 @@ export default function DashboardPage() {
           {/* Section 3: Recent Entries with Deletion Option */}
           <RecentEntries
             entries={recentEntries}
+            loading={loading}
             onOpenEntry={handleOpenEntry}
             onViewAll={() => handleAction("calendar")}
             onDeleteEntry={(entryId) => {
@@ -288,12 +291,17 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              {primaryDiary && (
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#FAF6EE] border border-[#D8C7B0] text-xs font-serif text-[#463324] shadow-2xs">
-                  <span className="text-[#8C7662]">Current Volume:</span>
-                  <span className="font-semibold text-[#2C1D13]">{getCoverTheme(primaryDiary.coverColor).name}</span>
-                </div>
-              )}
+              <div
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#FAF6EE] border border-[#D8C7B0] text-xs font-serif text-[#463324] shadow-2xs transition-opacity ${
+                  primaryDiary ? "opacity-100" : "invisible pointer-events-none select-none"
+                }`}
+                aria-hidden={!primaryDiary}
+              >
+                <span className="text-[#8C7662]">Current Volume:</span>
+                <span className="font-semibold text-[#2C1D13]">
+                  {primaryDiary ? getCoverTheme(primaryDiary.coverColor).name : "Volume"}
+                </span>
+              </div>
             </div>
 
             {/* Illustrated Art Covers Showcase */}
