@@ -47,7 +47,6 @@ export default function DashboardPage() {
   const [isCreatingDiary, setIsCreatingDiary] = useState(false);
   const [newDiaryModalOpen, setNewDiaryModalOpen] = useState(false);
   const [newDiaryTitle, setNewDiaryTitle] = useState("");
-  const [newDiaryCover, setNewDiaryCover] = useState<DiaryCoverStyle>("embossed-leather");
   const [createDiaryError, setCreateDiaryError] = useState<string | null>(null);
 
   // Quick Entry modal state
@@ -117,7 +116,6 @@ export default function DashboardPage() {
 
   const handleCreateDiary = () => {
     setNewDiaryTitle("");
-    setNewDiaryCover("embossed-leather");
     setCreateDiaryError(null);
     setNewDiaryModalOpen(true);
   };
@@ -128,7 +126,7 @@ export default function DashboardPage() {
     setIsCreatingDiary(true);
     setCreateDiaryError(null);
     try {
-      await createDiary(titleToUse, newDiaryCover);
+      await createDiary(titleToUse, "embossed-leather");
       setNewDiaryModalOpen(false);
       showToast(`Created diary volume "${titleToUse}"`);
     } catch (err: any) {
@@ -587,7 +585,7 @@ export default function DashboardPage() {
             </h3>
 
             <p className="text-xs text-[#665547] font-light leading-relaxed mb-4">
-              Give your journal a title and select an illustrated theme cover or classic leather for your shelf.
+              Give your journal a title for your shelf.
             </p>
 
             {createDiaryError && (
@@ -611,44 +609,6 @@ export default function DashboardPage() {
                   autoFocus
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-serif text-[#4D3A2C] mb-2 font-medium">
-                  Choose Cover Art or Leather Style
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {COVER_THEMES.map((c) => (
-                    <button
-                      type="button"
-                      key={c.id}
-                      onClick={() => setNewDiaryCover(c.id as DiaryCoverStyle)}
-                      className={`relative rounded-xl overflow-hidden border-2 flex flex-col items-center justify-between text-left transition-all p-1.5 ${
-                        newDiaryCover === c.id
-                          ? "border-[#8E6945] ring-2 ring-[#8E6945]/40 scale-102 bg-[#F2E8DA]"
-                          : "border-[#DDD0BC] hover:border-[#8E6945]/60 bg-[#F7F1E7]"
-                      }`}
-                    >
-                      {c.imageUrl ? (
-                        <div className="w-full h-16 rounded-lg overflow-hidden relative mb-1.5 bg-[#241710]">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={c.imageUrl}
-                            alt={c.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className={`w-full h-16 rounded-lg ${c.bgColor} border ${c.borderColor} mb-1.5 flex items-center justify-center`}>
-                          <span className="text-[10px] text-[#FAF5ED]/80 font-serif">Classic</span>
-                        </div>
-                      )}
-                      <span className="text-[11px] text-[#2C2016] font-serif font-medium line-clamp-1 w-full text-center">
-                        {c.name.replace(" Leather", "")}
-                      </span>
-                    </button>
-                  ))}
-                </div>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E8DFC9]">
